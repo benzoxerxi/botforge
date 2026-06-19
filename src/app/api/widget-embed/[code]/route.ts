@@ -38,16 +38,17 @@ export async function GET(
 
   var container = document.createElement('div');
   container.id = 'botforge-widget-container';
-  container.style.cssText = 'all:initial;position:fixed!important;z-index:999999!important;${posX};${posY};bottom:16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;transition:width 0.25s ease,height 0.25s ease;';
+  container.style.cssText = 'position:fixed!important;z-index:2147483647!important;${posX};${posY};bottom:20px;margin:0!important;padding:0!important;width:auto;height:auto;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);overflow:visible!important;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;transition:width 0.25s ease,height 0.25s ease;background:transparent!important;border:none!important;outline:none!important;';
 
   var iframe = document.createElement('iframe');
   iframe.id = 'botforge-widget-iframe';
-  iframe.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 32px);max-height:calc(100vh - 80px);background:transparent;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:width 0.25s ease,height 0.25s ease;';
+  iframe.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px);background:transparent;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:width 0.25s ease,height 0.25s ease;';
   iframe.allow = 'clipboard-read; clipboard-write';
   iframe.src = 'https://chat.benzos.uk/widget/' + widgetCode;
 
   container.appendChild(iframe);
-  document.body.appendChild(container);
+  // Append to <html> to avoid clipping from host page's body overflow/containers
+  (document.documentElement || document.body).appendChild(container);
 
   // Listen for resize messages from the widget iframe
   window.addEventListener('message', function(event) {

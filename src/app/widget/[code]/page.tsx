@@ -358,11 +358,10 @@ function WidgetInner({ code }: { code: string }) {
       <div style={{ position: "fixed", bottom: "16px", right: "16px", zIndex: 2147483647, width: 0, height: 0, margin: 0, padding: 0, border: "none", overflow: "visible", pointerEvents: "auto", background: "transparent" }}>
         <button
           onClick={() => setIsMinimized(false)}
-          className="group"
           id="botforge-minimized-btn"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "absolute", bottom: "0", right: "0", width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", zIndex: 2147483647, padding: 0, margin: 0, border: "2px solid rgba(255,255,255,0.15)" }}
+          style={{ position: "absolute", bottom: "0", right: "0", width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", zIndex: 2147483647, padding: 0, margin: 0, border: "2px solid rgba(255,255,255,0.15)", textAlign: "center", verticalAlign: "middle" }}
         >
-          <span style={{ color: "#fff", fontSize: "20px", fontWeight: 700, lineHeight: 1 }}>
+          <span style={{ color: "#fff", fontSize: "22px", fontWeight: 700, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
             {config.companyName?.[0] || "B"}
           </span>
           {messages.length > 1 && (
