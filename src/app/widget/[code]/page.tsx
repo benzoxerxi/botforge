@@ -143,15 +143,19 @@ function WidgetInner({ code }: { code: string }) {
     }
   }, [conversationId, code]);
 
-  // Body styling — kept minimal since we're in an iframe
+  // Body styling — force dark background regardless of theme (widget is dark-themed)
   useEffect(() => {
     document.documentElement.style.margin = "0";
     document.documentElement.style.padding = "0";
+    document.documentElement.style.background = "#08051a";
     document.body.style.margin = "0";
     document.body.style.padding = "0";
     document.body.style.overflow = "hidden";
+    document.body.style.background = "#08051a";
     return () => {
       document.body.style.overflow = "";
+      document.body.style.background = "";
+      document.documentElement.style.background = "";
     };
   }, []);
 
