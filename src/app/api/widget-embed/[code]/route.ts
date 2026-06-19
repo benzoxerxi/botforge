@@ -46,6 +46,33 @@ export async function GET(
   var company = "${widget.company.name}";
   var widgetCode = "${widget.widgetCode}";
 
+  // Color helpers — same logic as SupportChat.tsx & widget page
+  function hexToRgb(hex) {
+    var h = hex.replace('#','');
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    return {
+      r: parseInt(h.substring(0,2),16),
+      g: parseInt(h.substring(2,4),16),
+      b: parseInt(h.substring(4,6),16)
+    };
+  }
+  function shiftColor(hex, amount) {
+    var rgb = hexToRgb(hex);
+    return {
+      r: Math.max(0, Math.min(255, rgb.r + amount)),
+      g: Math.max(0, Math.min(255, rgb.g + amount)),
+      b: Math.max(0, Math.min(255, rgb.b + amount))
+    };
+  }
+  function getAccentGradient(accentHex) {
+    var accentRgb = hexToRgb(accentHex);
+    var darker = shiftColor(accentHex, -40);
+    var grad = 'linear-gradient(135deg, ' + accentHex + ', rgb(' + darker.r + ',' + darker.g + ',' + darker.b + '))';
+    var glow = '0 0 40px rgba(' + accentRgb.r + ',' + accentRgb.g + ',' + accentRgb.b + ',0.35)';
+    return { gradient: grad, glowBoxShadow: glow };
+  }
+  var fabGradient = getAccentGradient(accent);
+
   var container = document.createElement('div');
   container.id = 'botforge-widget-container';
   container.style.cssText = 'position:fixed!important;z-index:2147483647!important;${posX};${posY};bottom:20px;margin:0!important;padding:0!important;width:auto;height:auto;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);overflow:visible!important;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:transparent!important;border:none!important;outline:none!important;';
@@ -57,15 +84,15 @@ export async function GET(
     btn.id = 'botforge-widget-btn';
     btn.innerText = companyLetter;
     btn.setAttribute('aria-label', 'Open chat');
-    btn.style.cssText = 'width:56px;height:56px;border-radius:50%;background-color:' + accent + ';box-shadow:0 6px 24px rgba(0,0,0,0.35);cursor:pointer;padding:0;margin:0;border:none;text-align:center;line-height:56px;color:' + btnTextColor + ';font-size:24px;font-weight:800;transition:transform 0.15s ease,box-shadow 0.15s ease;display:block;';
+    btn.style.cssText = 'width:56px;height:56px;border-radius:50%;background:' + fabGradient.gradient + ';box-shadow:' + fabGradient.glowBoxShadow + ';cursor:pointer;padding:0;margin:0;border:none;text-align:center;line-height:56px;color:' + btnTextColor + ';font-size:24px;font-weight:800;transition:transform 0.15s ease,box-shadow 0.15s ease;display:block;';
 
     btn.addEventListener('mouseenter', function() {
       btn.style.transform = 'scale(1.1)';
-      btn.style.boxShadow = '0 8px 30px rgba(0,0,0,0.45)';
+      btn.style.boxShadow = fabGradient.glowBoxShadow.replace('0.35', '0.55');
     });
     btn.addEventListener('mouseleave', function() {
       btn.style.transform = 'scale(1)';
-      btn.style.boxShadow = '0 6px 24px rgba(0,0,0,0.35)';
+      btn.style.boxShadow = fabGradient.glowBoxShadow;
     });
 
     btn.addEventListener('click', function() {
