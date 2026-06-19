@@ -1299,7 +1299,7 @@ function WidgetSettings({
           <div className="relative">
             <div className="p-2.5 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-xs font-mono text-themed break-all">
               {widget?.widgetCode
-                ? `&lt;script src=&quot;https://chat.benzos.uk/api/widget-embed/${widget.widgetCode}&quot;&gt;&lt;/script&gt;`
+                ? `<script src="https://chat.benzos.uk/api/widget-embed/${widget.widgetCode}"><` + `/script>`
                 : <span className="text-amber-400">Save widget settings first to get your embed code</span>
               }
             </div>
