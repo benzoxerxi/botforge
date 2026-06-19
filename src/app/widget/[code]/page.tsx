@@ -39,6 +39,17 @@ export default function WidgetPage() {
   return <WidgetInner code={code} />;
 }
 
+function getContrastColor(hex: string): string {
+  // Calculate relative luminance to determine if text should be light or dark
+  let c = hex.replace("#", "");
+  if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  const r = parseInt(c.substring(0,2), 16) / 255;
+  const g = parseInt(c.substring(2,4), 16) / 255;
+  const b = parseInt(c.substring(4,6), 16) / 255;
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance > 0.5 ? "#000" : "#fff";
+}
+
 function WidgetInner({ code }: { code: string }) {
   const [config, setConfig] = useState<WidgetConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -337,7 +348,7 @@ function WidgetInner({ code }: { code: string }) {
         type: "botforge_resize",
         width: isMinimized ? 56 : 380,
         height: isMinimized ? 56 : 560,
-      }, "*");
+      }, "https://chat.benzos.uk");
     }
   }, [isMinimized]);
 
@@ -359,9 +370,9 @@ function WidgetInner({ code }: { code: string }) {
         <button
           onClick={() => setIsMinimized(false)}
           id="botforge-minimized-btn"
-          style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 6px 24px rgba(0,0,0,0.35)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "none", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: "#000", fontSize: "24px", fontWeight: 800, userSelect: "none", overflow: "hidden", position: "relative" }}
+          style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 6px 24px rgba(0,0,0,0.35)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "none", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", overflow: "hidden", position: "relative" }}
         >
-          <span style={{ color: "#000", fontSize: "24px", fontWeight: 800, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
+          <span style={{ color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
             {config.companyName?.[0] || "B"}
           </span>
           {messages.length > 1 && (
@@ -431,7 +442,7 @@ function WidgetInner({ code }: { code: string }) {
       {/* === MESSAGES === */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : msg.role === "system" ? "justify-center" : "justify-start"}`}>
+          <div key={msg.id || msg.content + msg.role + i} className={`flex ${msg.role === "user" ? "justify-end" : msg.role === "system" ? "justify-center" : "justify-start"}`}>
             {msg.role === "system" ? (
               <div className="text-[11px] text-white/40 italic px-2 py-1 text-center max-w-[90%]" style={{ whiteSpace: "pre-wrap" }}>
                 {msg.content}

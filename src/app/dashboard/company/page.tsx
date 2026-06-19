@@ -1298,13 +1298,18 @@ function WidgetSettings({
           <p className="text-xs text-[var(--color-muted-foreground)] mb-3">Add to your website</p>
           <div className="relative">
             <div className="p-2.5 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-xs font-mono text-themed break-all">
-              &lt;script src=&quot;https://chat.benzos.uk/api/widget-embed/{widget?.widgetCode}&quot;&gt;&lt;/script&gt;
+              {widget?.widgetCode
+                ? `&lt;script src=&quot;https://chat.benzos.uk/api/widget-embed/${widget.widgetCode}&quot;&gt;&lt;/script&gt;`
+                : <span className="text-amber-400">Save widget settings first to get your embed code</span>
+              }
             </div>
-            <button onClick={() => navigator.clipboard.writeText(`<script src="https://chat.benzos.uk/api/widget-embed/${widget?.widgetCode}"></script>`)}
-              className="mt-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 hover:bg-white/20 transition-all"
-            >
-              📋 Copy
-            </button>
+            {widget?.widgetCode && (
+              <button onClick={() => navigator.clipboard.writeText(`<script src="https://chat.benzos.uk/api/widget-embed/${widget.widgetCode}"></script>`)}
+                className="mt-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 hover:bg-white/20 transition-all"
+              >
+                📋 Copy
+              </button>
+            )}
           </div>
           <div className="mt-3 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/20 text-[11px] text-blue-400">
             💡 Paste just before &lt;/body&gt;
