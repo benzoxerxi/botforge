@@ -28,6 +28,8 @@ export async function GET(
 
   const js = `
 (function() {
+  // Wrap everything in try/catch to avoid breaking the host page
+  try {
   var accent = "${accent}";
   var bgColor = "${bgColor}";
   var textColor = "${textColor}";
@@ -62,6 +64,7 @@ export async function GET(
   });
 
   console.log("🐦 BotForge widget loaded for", company);
+  } catch(e) { console.warn("BotForge widget error:", e); }
 })();
 `;
 
