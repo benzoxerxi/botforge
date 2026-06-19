@@ -28,7 +28,18 @@ interface WidgetConfig {
 
 export default function WidgetPage() {
   const params = useParams();
-  const code = params.code as string;
+  const code = params?.code as string;
+  if (!code) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", backgroundColor: "#08051a" }}>
+        <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px" }}>Loading widget...</div>
+      </div>
+    );
+  }
+  return <WidgetInner code={code} />;
+}
+
+function WidgetInner({ code }: { code: string }) {
   const [config, setConfig] = useState<WidgetConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Array<{ role: string; content: string; id?: string }>>([]);
@@ -319,17 +330,6 @@ export default function WidgetPage() {
     } catch {}
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-full" style={{ backgroundColor: "var(--color-background, #08051a)" }}>
-      <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" style={{ color: "var(--color-primary, #7c3aed)" }} />
-    </div>
-  );
-
-  if (!config) return <div className="flex items-center justify-center h-full p-4 text-red-400 text-sm" style={{ backgroundColor: "#08051a" }}>Widget not found</div>;
-
-  const accent = config.primaryColor || "#7c3aed";
-  const isAgentActive = handoffStatus === "active";
-
   // Notify parent to resize the iframe when toggle
   useEffect(() => {
     if (typeof window !== "undefined" && window.parent !== window) {
@@ -341,14 +341,26 @@ export default function WidgetPage() {
     }
   }, [isMinimized]);
 
+  if (loading) return (
+    <div className="flex items-center justify-center h-full" style={{ backgroundColor: "var(--color-background, #08051a)" }}>
+      <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" style={{ color: "var(--color-primary, #7c3aed)" }} />
+    </div>
+  );
+
+  if (!config) return <div className="flex items-center justify-center h-full p-4 text-red-400 text-sm" style={{ backgroundColor: "#08051a" }}>Widget not found</div>;
+
+  const accent = config.primaryColor || "#7c3aed";
+  const isAgentActive = handoffStatus === "active";
+
   // ===== MINIMIZED VIEW =====
   if (isMinimized) {
     return (
       <div style={{ position: "fixed", bottom: "16px", right: "16px", zIndex: 2147483647, width: 0, height: 0, margin: 0, padding: 0, border: "none", overflow: "visible", pointerEvents: "auto", background: "transparent" }}>
         <button
           onClick={() => setIsMinimized(false)}
-          className="group relative"
-          style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "absolute", bottom: "0", right: "0", width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.15s", zIndex: 2147483647, padding: 0, margin: 0 }}
+          className="group"
+          id="botforge-minimized-btn"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "absolute", bottom: "0", right: "0", width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", zIndex: 2147483647, padding: 0, margin: 0, border: "2px solid rgba(255,255,255,0.15)" }}
         >
           <span style={{ color: "#fff", fontSize: "20px", fontWeight: 700, lineHeight: 1 }}>
             {config.companyName?.[0] || "B"}

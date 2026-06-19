@@ -57,7 +57,7 @@ export async function GET(
       var h = event.data.height || 56;
       iframe.style.width = w + 'px';
       iframe.style.height = h + 'px';
-      iframe.style.pointerEvents = w <= 60 ? 'none' : 'auto';
+      iframe.style.pointerEvents = 'auto';
       iframe.style.boxShadow = w <= 60 ? 'none' : '0 8px 32px rgba(0,0,0,0.4)';
       iframe.style.borderRadius = w <= 60 ? '50%' : '16px';
     }
