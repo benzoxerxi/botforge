@@ -64,6 +64,7 @@ function WidgetInner({ code }: { code: string }) {
   const [submittedRating, setSubmittedRating] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
+  const [iframeReady, setIframeReady] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const resolvedRef = useRef(false);
@@ -341,16 +342,39 @@ function WidgetInner({ code }: { code: string }) {
     } catch {}
   };
 
+  // Check if loaded with ?open flag (embed script adds it on button click)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const open = new URLSearchParams(window.location.search).has("open");
+      if (open) setIsMinimized(false);
+      setIframeReady(true);
+    }
+  }, []);
+
+  // Listen for expand message from parent (when minimized iframe bubble is clicked)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handler = (event: MessageEvent) => {
+      if (event.origin !== "https://chat.benzos.uk") return;
+      if (event.data && event.data.type === "botforge_expand") {
+        setIsMinimized(false);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
   // Notify parent to resize the iframe when toggle
   useEffect(() => {
+    if (!iframeReady) return;
     if (typeof window !== "undefined" && window.parent !== window) {
       window.parent.postMessage({
-        type: "botforge_resize",
+        type: isMinimized ? "botforge_collapse" : "botforge_open",
         width: isMinimized ? 56 : 380,
         height: isMinimized ? 56 : 560,
       }, "https://chat.benzos.uk");
     }
-  }, [isMinimized]);
+  }, [isMinimized, iframeReady]);
 
   if (loading) return (
     <div className="flex items-center justify-center h-full" style={{ backgroundColor: "var(--color-background, #08051a)" }}>
