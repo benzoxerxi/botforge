@@ -359,9 +359,9 @@ function WidgetInner({ code }: { code: string }) {
         <button
           onClick={() => setIsMinimized(false)}
           id="botforge-minimized-btn"
-          style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "2px solid rgba(255,255,255,0.15)", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: "#fff", fontSize: "22px", fontWeight: 700, userSelect: "none", overflow: "hidden", position: "relative" }}
+          style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 6px 24px rgba(0,0,0,0.35)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "none", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: "#000", fontSize: "24px", fontWeight: 800, userSelect: "none", overflow: "hidden", position: "relative" }}
         >
-          <span style={{ color: "#fff", fontSize: "22px", fontWeight: 700, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
+          <span style={{ color: "#000", fontSize: "24px", fontWeight: 800, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
             {config.companyName?.[0] || "B"}
           </span>
           {messages.length > 1 && (
