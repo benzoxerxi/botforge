@@ -1,0 +1,339 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===== USERS & AUTH =====
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?
+  image     String?
+  role      String   @default("company_admin") // super_admin | company_admin | agent
+  companyId String?
+  company   Company? @relation("CompanyMembers", fields: [companyId], references: [id], onDelete: Cascade)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Agent-specific
+  agentChats AgentChat[]
+
+  accounts  Account[]
+  sessions  Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ===== COMPANIES =====
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  domain    String?
+  logo      String?
+  plan      String   @default("starter") // starter | business | enterprise
+  active    Boolean  @default(true)
+
+  // Super admin settings
+  tokenLimit    Int    @default(50000) // monthly token limit
+  tokensUsed    Int    @default(0)
+  billingMonth  DateTime @default(now())
+
+  // AI Config (set by super admin for each company)
+  aiProvider    String?  // deepseek, openai, claude
+  aiApiKey      String?  // encrypted
+  aiModel       String?  // deepseek-chat, gpt-4, etc.
+  systemPrompt  String?  // default system prompt
+  temperature   Float?   @default(0.7)
+  maxTokens     Int?     @default(2048)
+
+  // Features
+  enableHumanHandoff Boolean @default(true)
+  enableShopify      Boolean @default(false)
+  enableFacebook     Boolean @default(false)
+  enableInstagram    Boolean @default(false)
+
+  // Integrations tokens (encrypted)
+  shopifyToken   String?
+  facebookToken  String?
+  instagramToken String?
+
+  // Google Sheets
+  googleSheetId  String?
+  googleSheetRange String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members      User[] @relation("CompanyMembers")
+  bots         Bot[]
+  chatWidgets  ChatWidget[]
+  knowledgeBases KnowledgeBase[]
+  conversations Conversation[]
+  billingLogs  BillingLog[]
+  productCatalogItems ProductCatalog[]
+}
+
+// ===== BOTS =====
+model Bot {
+  id        String   @id @default(cuid())
+  name      String
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  active    Boolean  @default(true)
+
+  // Bot config (overrides company defaults)
+  systemPrompt  String?
+  temperature   Float?   @default(0.7)
+  maxTokens     Int?     @default(2048)
+  
+  // Knowledge base connection
+  useRag          Boolean @default(true)
+  ragChunkSize    Int     @default(1000)
+  ragChunkOverlap Int     @default(200)
+
+  // Handoff config
+  handoffTrigger  String @default("auto") // auto | keyword | button | manual
+  handoffKeywords String? // comma-separated keywords that trigger handoff
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  knowledgeBases KnowledgeBase[]
+  conversations  Conversation[]
+  chatWidget     ChatWidget?
+}
+
+// ===== CHAT WIDGET =====
+model ChatWidget {
+  id          String @id @default(cuid())
+  botId       String @unique
+  bot         Bot    @relation(fields: [botId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // Widget styling
+  primaryColor    String  @default("#00f0ff")
+  backgroundColor String  @default("#0a0e1a")
+  textColor       String  @default("#ffffff")
+  position        String  @default("bottom-right") // bottom-right, bottom-left
+  title           String  @default("Need help?")
+  subtitle        String  @default("Ask us anything")
+  greetingMessage String  @default("Hi! How can I help you today?")
+
+  // Bubble colors (v2.1)
+  agentBubbleColor       String  @default("rgba(255,255,255,0.06)")
+  agentTextColor         String  @default("#ffffff")
+  userBubbleColor        String  @default("#00f0ff")
+  userTextColor          String  @default("#ffffff")
+
+  // Reset button
+  resetButtonColor       String  @default("#00f0ff")
+  resetButtonLabel       String  @default("Start new chat")
+  resetButtonTextColor   String  @default("#ffffff")
+
+  // End chat button
+  endChatButtonColor     String  @default("#ef4444")
+  endChatButtonLabel     String  @default("End chat")
+  endChatButtonTextColor String  @default("#ffffff")
+
+  // Embed
+  widgetCode String @unique @default(cuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ===== KNOWLEDGE BASE =====
+model KnowledgeBase {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   @default("document") // document | qa | sheet | crawl
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // For document upload
+  fileName    String?
+  fileUrl     String?
+  fileSize    Int?
+  fileType    String? // pdf, txt, csv, md
+
+  // For Q&A
+  qaData String? // JSON string of Q&A pairs
+
+  // For crawls
+  sourceUrl String?
+
+  // Chunks (embeddings stored separately)
+  chunkCount Int @default(0)
+
+  active    Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ===== CONVERSATIONS =====
+model Conversation {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+
+  // Channel
+  channel   String @default("widget") // widget | shopify | facebook | instagram
+  
+  // Customer info
+  customerName  String?
+  customerEmail String?
+  customerId    String? // external ID from platform
+
+  // Status
+  status    String @default("active") // active | handoff_requested | handoff_active | closed
+  agentId   String?
+  
+  tokenCost Int @default(0)
+  messageCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages    Message[]
+  agentChats  AgentChat[]
+  ratings     Rating[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  conversationId String
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  role      String // user | assistant | agent | system
+  content   String
+  source    String? // ai | human
+  metadata  String? // JSON for additional data (intent, confidence, etc.)
+
+  createdAt DateTime @default(now())
+}
+
+// ===== AGENT PANEL =====
+model AgentChat {
+  id        String   @id @default(cuid())
+  agentId   String
+  agent     User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  status    String @default("active") // active | resolved
+  joinedAt  DateTime @default(now())
+  resolvedAt DateTime?
+
+  @@unique([agentId, conversationId])
+}
+
+// ===== RATINGS =====
+model Rating {
+  id        String   @id @default(cuid())
+  conversationId String
+  conversation  Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  companyId String
+  rating    Int      // 1-5
+  createdAt DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([companyId])
+}
+
+// ===== BILLING =====
+model BillingLog {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  month     DateTime
+  tokensUsed Int
+  amount    Float?   // calculated amount
+  paid      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// ===== PLATFORM SETTINGS (Super Admin Config) =====
+model PlatformSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+}
+
+// ===== PASSWORD RESET TOKENS =====
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+// ===== PRODUCT CATALOG =====
+model ProductCatalog {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float?
+  category    String?
+  link        String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("ProductCatalog")
+}
+
+// ===== EMBEDDINGS (for RAG) =====
+// Embeddings stored separately in a vector DB or JSON
+// pgvector can be added later when extension is available
