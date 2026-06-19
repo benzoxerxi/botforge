@@ -40,7 +40,7 @@ export async function GET(
 
   var iframe = document.createElement('iframe');
   iframe.id = 'botforge-widget-iframe';
-  iframe.style.cssText = 'border:none;width:380px;height:560px;max-width:100vw;background:transparent;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:width 0.25s ease,height 0.25s ease;';
+  iframe.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 32px);max-height:calc(100vh - 80px);background:transparent;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:width 0.25s ease,height 0.25s ease;';
   iframe.allow = 'clipboard-read; clipboard-write';
   iframe.src = 'https://chat.benzos.uk/widget/' + widgetCode;
 
@@ -49,7 +49,7 @@ export async function GET(
 
   // Listen for resize messages from the widget iframe
   window.addEventListener('message', function(event) {
-    if (event.origin !== 'https://chat.benzos.uk' && event.origin !== 'https://chat.benos.uk') return;
+    if (event.origin !== 'https://chat.benzos.uk') return;
     if (event.data && event.data.type === 'botforge_resize') {
       var w = event.data.width || 56;
       var h = event.data.height || 56;
@@ -60,8 +60,6 @@ export async function GET(
       iframe.style.borderRadius = w <= 60 ? '50%' : '16px';
     }
   });
-
-  console.log("🐦 BotForge widget loaded for", company);
 
   console.log("🐦 BotForge widget loaded for", company);
 })();

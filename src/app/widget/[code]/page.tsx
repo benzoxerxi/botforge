@@ -93,21 +93,17 @@ export default function WidgetPage() {
     }
   }, [conversationId, code]);
 
-  // Prevent body/wrapping div from allowing scroll on the whole widget
-  // When minimized, reset body styles so the host page remains usable
+  // Body styling — kept minimal since we're in an iframe
   useEffect(() => {
-    if (isMinimized) {
-      document.body.style.overflow = "";
-      document.body.style.height = "";
-    } else {
-      document.body.style.overflow = "hidden";
-      document.body.style.height = "100vh";
-    }
+    document.documentElement.style.margin = "0";
+    document.documentElement.style.padding = "0";
+    document.body.style.margin = "0";
+    document.body.style.padding = "0";
+    document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "";
-      document.body.style.height = "";
     };
-  }, [isMinimized]);
+  }, []);
 
   useEffect(() => {
     if (!code) return;
@@ -369,7 +365,7 @@ export default function WidgetPage() {
 
   // ===== FULL CHAT VIEW =====
   return (
-    <div className="h-screen flex flex-col overflow-hidden" style={{ backgroundColor: config.backgroundColor || "#08051a" }}>
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: config.backgroundColor || "#08051a" }}>
       {/* === STATIC HEADER === */}
       <div className="flex-shrink-0 px-4 py-3 flex items-center gap-2.5 border-b border-white/10" style={{ backgroundColor: config.backgroundColor || "#08051a" }}>
         <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md" style={{ backgroundColor: accent }}>
