@@ -52,7 +52,7 @@ function WidgetInner({ code }: { code: string }) {
   const [rating, setRating] = useState(0);
   const [submittedRating, setSubmittedRating] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(true);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const resolvedRef = useRef(false);
@@ -355,11 +355,11 @@ function WidgetInner({ code }: { code: string }) {
   // ===== MINIMIZED VIEW =====
   if (isMinimized) {
     return (
-      <div style={{ position: "fixed", bottom: "16px", right: "16px", zIndex: 2147483647, width: 0, height: 0, margin: 0, padding: 0, border: "none", overflow: "visible", pointerEvents: "auto", background: "transparent" }}>
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-end", justifyContent: "flex-end", margin: 0, padding: "20px", border: "none", overflow: "visible", pointerEvents: "auto", background: "transparent" }}>
         <button
           onClick={() => setIsMinimized(false)}
           id="botforge-minimized-btn"
-          style={{ position: "absolute", bottom: "0", right: "0", width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", zIndex: 2147483647, padding: 0, margin: 0, border: "2px solid rgba(255,255,255,0.15)", textAlign: "center", verticalAlign: "middle" }}
+          style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "2px solid rgba(255,255,255,0.15)", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: "#fff", fontSize: "22px", fontWeight: 700, userSelect: "none", overflow: "hidden", position: "relative" }}
         >
           <span style={{ color: "#fff", fontSize: "22px", fontWeight: 700, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
             {config.companyName?.[0] || "B"}
