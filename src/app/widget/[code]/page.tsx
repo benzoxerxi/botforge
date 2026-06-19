@@ -39,15 +39,42 @@ export default function WidgetPage() {
   return <WidgetInner code={code} />;
 }
 
-function getContrastColor(hex: string): string {
-  // Calculate relative luminance to determine if text should be light or dark
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
   let c = hex.replace("#", "");
   if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
-  const r = parseInt(c.substring(0,2), 16) / 255;
-  const g = parseInt(c.substring(2,4), 16) / 255;
-  const b = parseInt(c.substring(4,6), 16) / 255;
-  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return {
+    r: parseInt(c.substring(0,2), 16),
+    g: parseInt(c.substring(2,4), 16),
+    b: parseInt(c.substring(4,6), 16),
+  };
+}
+
+function getContrastColor(hex: string): string {
+  const { r, g, b } = hexToRgb(hex);
+  const luminance = 0.299 * (r / 255) + 0.587 * (g / 255) + 0.114 * (b / 255);
   return luminance > 0.5 ? "#000" : "#fff";
+}
+
+/** Generate a gradient stop slightly darker/shifted for the second color */
+function shiftColor(hex: string, amount: number): string {
+  const { r, g, b } = hexToRgb(hex);
+  const nr = Math.max(0, Math.min(255, r + amount));
+  const ng = Math.max(0, Math.min(255, g + amount));
+  const nb = Math.max(0, Math.min(255, b + amount));
+  return "#" + [nr, ng, nb].map(v => v.toString(16).padStart(2, "0")).join("");
+}
+
+/** Get gradient and glow styles keyed off the accent color */
+function getAccentGradient(accent: string): {
+  gradient: string;
+  glowBoxShadow: string;
+} {
+  const { r, g, b } = hexToRgb(accent);
+  // Second stop: shift hue slightly toward purple/blue and darken
+  const stop2 = shiftColor(accent, -30);
+  const gradient = `linear-gradient(135deg, ${accent}, ${stop2})`;
+  const glowBoxShadow = `0 6px 24px rgba(0,0,0,0.35), 0 0 40px rgba(${r},${g},${b},0.35)`;
+  return { gradient, glowBoxShadow };
 }
 
 function WidgetInner({ code }: { code: string }) {
@@ -387,6 +414,8 @@ function WidgetInner({ code }: { code: string }) {
   const accent = config.primaryColor || "#7c3aed";
   const isAgentActive = handoffStatus === "active";
 
+  const fabGradient = getAccentGradient(accent);
+
   // ===== MINIMIZED VIEW =====
   if (isMinimized) {
     return (
@@ -394,7 +423,7 @@ function WidgetInner({ code }: { code: string }) {
         <button
           onClick={() => setIsMinimized(false)}
           id="botforge-minimized-btn"
-          style={{ width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 6px 24px rgba(0,0,0,0.35)", cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "none", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", overflow: "hidden", position: "relative" }}
+          style={{ width: "56px", height: "56px", borderRadius: "50%", background: fabGradient.gradient, boxShadow: fabGradient.glowBoxShadow, cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "none", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", overflow: "hidden", position: "relative" }}
         >
           <span style={{ color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
             {config.companyName?.[0] || "B"}
@@ -413,8 +442,8 @@ function WidgetInner({ code }: { code: string }) {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: config.backgroundColor || "#08051a" }}>
       {/* === STATIC HEADER === */}
-      <div className="flex-shrink-0 px-4 py-3 flex items-center gap-2.5 border-b border-white/10" style={{ backgroundColor: config.backgroundColor || "#08051a" }}>
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md" style={{ backgroundColor: accent }}>
+      <div className="flex-shrink-0 px-4 py-3 flex items-center gap-2.5 border-b border-white/10" style={{ background: `linear-gradient(135deg, ${accent}10, ${shiftColor(accent, -50)}10)`, backgroundColor: config.backgroundColor || "#08051a" }}>
+        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md" style={{ background: fabGradient.gradient }}>
           {config.companyName?.[0] || "B"}
         </div>
         <div className="flex-1 min-w-0">
