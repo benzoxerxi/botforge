@@ -50,7 +50,6 @@ export default function RootLayout({
         <ThemeProvider>
           <Providers>{children}</Providers>
         </ThemeProvider>
-        <script src="https://chat.benzos.uk/api/widget-embed/demo-company-widget" async></script>
       </body>
     </html>
   );
