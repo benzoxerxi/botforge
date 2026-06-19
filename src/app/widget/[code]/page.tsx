@@ -94,14 +94,20 @@ export default function WidgetPage() {
   }, [conversationId, code]);
 
   // Prevent body/wrapping div from allowing scroll on the whole widget
+  // When minimized, reset body styles so the host page remains usable
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    document.body.style.height = "100vh";
+    if (isMinimized) {
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+    } else {
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100vh";
+    }
     return () => {
       document.body.style.overflow = "";
       document.body.style.height = "";
     };
-  }, []);
+  }, [isMinimized]);
 
   useEffect(() => {
     if (!code) return;
@@ -328,22 +334,31 @@ export default function WidgetPage() {
   const accent = config.primaryColor || "#7c3aed";
   const isAgentActive = handoffStatus === "active";
 
+  // Notify parent to resize the iframe when toggle
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.parent !== window) {
+      window.parent.postMessage({
+        type: "botforge_resize",
+        width: isMinimized ? 56 : 380,
+        height: isMinimized ? 56 : 560,
+      }, "*");
+    }
+  }, [isMinimized]);
+
   // ===== MINIMIZED VIEW =====
   if (isMinimized) {
     return (
-      <div className="h-screen flex items-end justify-end p-3" style={{ backgroundColor: "transparent" }}>
+      <div style={{ position: "fixed", bottom: "16px", right: "16px", zIndex: 2147483647, width: 0, height: 0, margin: 0, padding: 0, border: "none", overflow: "visible", pointerEvents: "auto", background: "transparent" }}>
         <button
           onClick={() => setIsMinimized(false)}
           className="group relative"
+          style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "absolute", bottom: "0", right: "0", width: "56px", height: "56px", borderRadius: "50%", backgroundColor: accent, boxShadow: "0 8px 32px rgba(0,0,0,0.4)", cursor: "pointer", transition: "transform 0.15s", zIndex: 2147483647, padding: 0, margin: 0 }}
         >
-          <div
-            className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-lg transition-transform hover:scale-110 active:scale-95"
-            style={{ backgroundColor: accent }}
-          >
+          <span style={{ color: "#fff", fontSize: "20px", fontWeight: 700, lineHeight: 1 }}>
             {config.companyName?.[0] || "B"}
-          </div>
+          </span>
           {messages.length > 1 && (
-            <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center shadow-md border-2 border-white/20">
+            <span style={{ position: "absolute", top: "-4px", right: "-4px", minWidth: "20px", height: "20px", padding: "0 4px", borderRadius: "50%", backgroundColor: "#ef4444", color: "#fff", fontSize: "10px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", border: "2px solid rgba(255,255,255,0.2)" }}>
               {messages.filter(m => m.role === "user" || m.role === "assistant").length}
             </span>
           )}

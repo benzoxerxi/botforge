@@ -36,15 +36,32 @@ export async function GET(
 
   var container = document.createElement('div');
   container.id = 'botforge-widget-container';
-  container.style.cssText = 'all:initial;position:fixed!important;z-index:999999!important;${posX};${posY};bottom:16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;';
+  container.style.cssText = 'all:initial;position:fixed!important;z-index:999999!important;${posX};${posY};bottom:16px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;transition:width 0.25s ease,height 0.25s ease;';
 
   var iframe = document.createElement('iframe');
-  iframe.style.cssText = 'border:none;width:380px;height:560px;max-width:100vw;background:transparent;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);';
+  iframe.id = 'botforge-widget-iframe';
+  iframe.style.cssText = 'border:none;width:380px;height:560px;max-width:100vw;background:transparent;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:width 0.25s ease,height 0.25s ease;';
   iframe.allow = 'clipboard-read; clipboard-write';
   iframe.src = 'https://chat.benzos.uk/widget/' + widgetCode;
 
   container.appendChild(iframe);
   document.body.appendChild(container);
+
+  // Listen for resize messages from the widget iframe
+  window.addEventListener('message', function(event) {
+    if (event.origin !== 'https://chat.benzos.uk' && event.origin !== 'https://chat.benos.uk') return;
+    if (event.data && event.data.type === 'botforge_resize') {
+      var w = event.data.width || 56;
+      var h = event.data.height || 56;
+      iframe.style.width = w + 'px';
+      iframe.style.height = h + 'px';
+      iframe.style.pointerEvents = w <= 60 ? 'none' : 'auto';
+      iframe.style.boxShadow = w <= 60 ? 'none' : '0 8px 32px rgba(0,0,0,0.4)';
+      iframe.style.borderRadius = w <= 60 ? '50%' : '16px';
+    }
+  });
+
+  console.log("🐦 BotForge widget loaded for", company);
 
   console.log("🐦 BotForge widget loaded for", company);
 })();
