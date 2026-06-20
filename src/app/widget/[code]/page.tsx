@@ -90,8 +90,6 @@ function WidgetInner({ code }: { code: string }) {
   const [rating, setRating] = useState(0);
   const [submittedRating, setSubmittedRating] = useState(false);
   const [submittingRating, setSubmittingRating] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(true);
-  const [iframeReady, setIframeReady] = useState(false);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const resolvedRef = useRef(false);
@@ -373,39 +371,7 @@ function WidgetInner({ code }: { code: string }) {
     } catch {}
   };
 
-  // Check if loaded with ?open flag (embed script adds it on button click)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const open = new URLSearchParams(window.location.search).has("open");
-      if (open) setIsMinimized(false);
-      setIframeReady(true);
-    }
-  }, []);
-
-  // Listen for expand message from parent (when minimized iframe bubble is clicked)
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const handler = (event: MessageEvent) => {
-      if (event.origin !== "https://chat.benzos.uk") return;
-      if (event.data && event.data.type === "botforge_expand") {
-        setIsMinimized(false);
-      }
-    };
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, []);
-
-  // Notify parent to resize the iframe when toggle
-  useEffect(() => {
-    if (!iframeReady) return;
-    if (typeof window !== "undefined" && window.parent !== window) {
-      window.parent.postMessage({
-        type: isMinimized ? "botforge_collapse" : "botforge_open",
-        width: isMinimized ? 56 : 380,
-        height: isMinimized ? 56 : 560,
-      }, "https://chat.benzos.uk");
-    }
-  }, [isMinimized, iframeReady]);
+  // Always full chat — parent embed script handles collapse/expand by swapping DOM elements
 
   if (loading) return (
     <div className="flex items-center justify-center h-full" style={{ backgroundColor: "var(--color-background, #08051a)" }}>
@@ -420,29 +386,12 @@ function WidgetInner({ code }: { code: string }) {
 
   const fabGradient = getAccentGradient(accent);
 
-  // ===== MINIMIZED VIEW =====
-  if (isMinimized) {
-    return (
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "flex-end", justifyContent: "flex-end", margin: 0, padding: "20px", border: "none", overflow: "visible", pointerEvents: "auto", background: "transparent" }}>
-        <button
-          onClick={() => setIsMinimized(false)}
-          id="botforge-minimized-btn"
-          style={{ width: "56px", height: "56px", borderRadius: "50%", background: fabGradient.gradient, boxShadow: fabGradient.glowBoxShadow, cursor: "pointer", transition: "transform 0.2s ease, box-shadow 0.2s ease", padding: 0, margin: 0, border: "none", textAlign: "center", verticalAlign: "middle", lineHeight: "56px", color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", overflow: "hidden", position: "relative" }}
-        >
-          <span style={{ color: getContrastColor(accent), fontSize: "24px", fontWeight: 800, userSelect: "none", WebkitUserSelect: "none", lineHeight: "56px" }}>
-            {config.companyName?.[0] || "B"}
-          </span>
-          {messages.length > 1 && (
-            <span style={{ position: "absolute", top: "-4px", right: "-4px", minWidth: "20px", height: "20px", padding: "0 4px", borderRadius: "50%", backgroundColor: "#ef4444", color: "#fff", fontSize: "10px", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.3)", border: "2px solid rgba(255,255,255,0.2)" }}>
-              {messages.filter(m => m.role === "user" || m.role === "assistant").length}
-            </span>
-          )}
-        </button>
-      </div>
-    );
-  }
-
-  // ===== FULL CHAT VIEW =====
+  // ===== FULL CHAT VIEW (always shown — parent handles collapse) =====
+  const sendCollapseToParent = () => {
+    if (typeof window !== "undefined" && window.parent !== window) {
+      window.parent.postMessage({ type: "botforge_collapse" }, "*");
+    }
+  };
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: config.backgroundColor || "#08051a" }}>
       {/* === STATIC HEADER === */}
@@ -470,7 +419,7 @@ function WidgetInner({ code }: { code: string }) {
 
           {/* Minimize button */}
           <button
-            onClick={() => setIsMinimized(true)}
+            onClick={sendCollapseToParent}
             className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-all"
             style={{ color: (config.textColor || "#fff") + "88" }}
             title="Minimize"
