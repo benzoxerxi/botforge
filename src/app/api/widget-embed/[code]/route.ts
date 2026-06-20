@@ -69,6 +69,10 @@ export async function GET(
 
   var iframe = null;
   var unreadBadge = null;
+  var preloadedIframe = null;
+
+  // Enable absolute positioning for children (FAB + preloaded iframe)
+  container.style.position = 'relative';
 
   function makeButton(isCircle) {
     var btn = document.createElement('button');
@@ -82,12 +86,24 @@ export async function GET(
     btn.addEventListener('mouseenter', function() {
       btn.style.transform = 'scale(1.1)';
       btn.style.boxShadow = '${fabGlowHover}';
+      // Preload iframe content on first hover (instant open on click!)
+      if (!preloadedIframe && !iframe) {
+        preloadedIframe = makeIframe('https://chat.benzos.uk/widget/' + widgetCode);
+        preloadedIframe.style.position = 'absolute';
+        preloadedIframe.style.bottom = '0';
+        preloadedIframe.style.right = '0';
+        preloadedIframe.style.visibility = 'hidden';
+        preloadedIframe.style.pointerEvents = 'none';
+        preloadedIframe.style.opacity = '0';
+        preloadedIframe.style.transform = 'translateY(20px) scale(0.85)';
+        container.appendChild(preloadedIframe);
+      }
       if (!preloaded) {
         preloaded = true;
-        var preload = document.createElement('link');
-        preload.rel = 'prefetch';
-        preload.href = 'https://chat.benzos.uk/widget/' + widgetCode;
-        document.head.appendChild(preload);
+        var preloadLink = document.createElement('link');
+        preloadLink.rel = 'prefetch';
+        preloadLink.href = 'https://chat.benzos.uk/widget/' + widgetCode;
+        document.head.appendChild(preloadLink);
       }
     });
     btn.addEventListener('mouseleave', function() {
@@ -116,29 +132,57 @@ export async function GET(
       // Re-expand (safety net — collapseToButton sets iframe=null)
       iframe.classList.remove('bf-spring-close');
       iframe.classList.add('bf-spring-open');
+      container.style.position = 'relative';
       return;
     }
 
-    // First open: create iframe, replace button
-    iframe = makeIframe('https://chat.benzos.uk/widget/' + widgetCode);
-
-    var btn = document.getElementById('botforge-widget-btn');
-    if (btn) {
-      btn.remove();
-      container.appendChild(iframe);
+    // Use preloaded iframe (started loading on hover) for instant open
+    if (preloadedIframe) {
+      iframe = preloadedIframe;
+      preloadedIframe = null;
+      // Reset preload positioning → normal flow inside container
+      iframe.style.position = '';
+      iframe.style.bottom = '';
+      iframe.style.right = '';
+      iframe.style.visibility = 'visible';
+      iframe.style.pointerEvents = '';
+      // Start from hidden state for the animation
+      iframe.style.opacity = '0';
+      iframe.style.transform = 'translateY(20px) scale(0.85)';
     } else {
-      container.appendChild(iframe);
+      // Fallback: no hover path (touch devices)
+      iframe = makeIframe('https://chat.benzos.uk/widget/' + widgetCode);
     }
 
-    // Spring entrance animation
+    var btn = document.getElementById('botforge-widget-btn');
+    if (btn) btn.remove();
+    if (iframe.parentElement !== container) {
+      container.appendChild(iframe);
+    }
+    container.style.position = 'relative';
+
+    // Force reflow so the animation picks up the start state
+    void iframe.offsetHeight;
     iframe.classList.add('bf-spring-open');
   }
 
   function collapseToButton() {
-    if (!iframe) return;
+    if (!iframe) {
+      // Clean up stale preloaded iframe if any
+      if (preloadedIframe) {
+        preloadedIframe.remove();
+        preloadedIframe = null;
+      }
+      return;
+    }
 
     // Reset unread badge on minimize
     updateBadge(0);
+    // Also clean up stale preload
+    if (preloadedIframe) {
+      preloadedIframe.remove();
+      preloadedIframe = null;
+    }
 
     // Spring close animation, then remove
     iframe.classList.remove('bf-spring-open');
@@ -152,6 +196,7 @@ export async function GET(
       container.style.backgroundColor = 'transparent';
       container.style.width = 'auto';
       container.style.height = 'auto';
+      container.style.position = 'relative';
       var btn = makeButton(false);
       container.appendChild(btn);
     }, 180);
