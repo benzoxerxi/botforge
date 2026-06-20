@@ -72,7 +72,7 @@ export async function GET(
   var preloadedIframe = null;
 
   // Enable absolute positioning for children (FAB + preloaded iframe)
-  container.style.position = 'relative';
+  
 
   function makeButton(isCircle) {
     var btn = document.createElement('button');
@@ -132,7 +132,7 @@ export async function GET(
       // Re-expand (safety net — collapseToButton sets iframe=null)
       iframe.classList.remove('bf-spring-close');
       iframe.classList.add('bf-spring-open');
-      container.style.position = 'relative';
+      
       return;
     }
 
@@ -159,7 +159,7 @@ export async function GET(
     if (iframe.parentElement !== container) {
       container.appendChild(iframe);
     }
-    container.style.position = 'relative';
+    
 
     // Force reflow so the animation picks up the start state
     void iframe.offsetHeight;
@@ -196,7 +196,7 @@ export async function GET(
       container.style.backgroundColor = 'transparent';
       container.style.width = 'auto';
       container.style.height = 'auto';
-      container.style.position = 'relative';
+      
       var btn = makeButton(false);
       container.appendChild(btn);
     }, 180);
