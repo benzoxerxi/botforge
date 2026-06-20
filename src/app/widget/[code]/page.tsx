@@ -94,6 +94,7 @@ function WidgetInner({ code }: { code: string }) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const resolvedRef = useRef(false);
   const msgKeyCounter = useRef(0);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const resetChat = () => {
     setMessages(config ? [{ role: "assistant", content: config.greetingMessage }] : []);
@@ -129,10 +130,17 @@ function WidgetInner({ code }: { code: string }) {
     });
   };
 
-  // Load saved conversationId on mount
+  // Load saved conversationId + unread count on mount
   useEffect(() => {
     const saved = localStorage.getItem(`bf_conv_${code}`);
     if (saved) setConversationId(saved);
+    const savedUnread = parseInt(localStorage.getItem(`bf_unread_count_${code}`) || '0', 10);
+    if (savedUnread > 0) {
+      setUnreadCount(savedUnread);
+      if (typeof window !== "undefined" && window.parent !== window) {
+        window.parent.postMessage({ type: "botforge_unread", count: savedUnread }, "*");
+      }
+    }
   }, [code]);
 
   // Save conversationId to localStorage
@@ -200,6 +208,14 @@ function WidgetInner({ code }: { code: string }) {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isResolved]);
 
+  // Sync unread count to parent embed script
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.parent !== window) {
+      window.parent.postMessage({ type: "botforge_unread", count: unreadCount }, "*");
+    }
+    localStorage.setItem(`bf_unread_count_${code}`, String(unreadCount));
+  }, [unreadCount, code]);
+
   // Listen for agent messages via SSE, fallback to polling
   useEffect(() => {
     if (!conversationId) return;
@@ -241,6 +257,7 @@ function WidgetInner({ code }: { code: string }) {
             const existingIds = new Set(prev.filter((m) => m.id).map((m: any) => m.id));
             const newAgentMsgs = agentMsgs.filter((m: any) => !existingIds.has(m.id));
             if (newAgentMsgs.length === 0) return prev;
+            setUnreadCount((c) => c + newAgentMsgs.length);
             return [...prev, ...newAgentMsgs.map((m: any) => ({
               id: m.id,
               role: "agent",
@@ -260,6 +277,7 @@ function WidgetInner({ code }: { code: string }) {
 
           if (data.type === "new_message" && data.message?.role === "agent") {
             setHandoffStatus("active");
+            setUnreadCount((c) => c + 1);
             setMessages((prev) => {
               const existing = prev.find((m) => m.id === data.message.id);
               if (existing) return prev;
@@ -329,6 +347,8 @@ function WidgetInner({ code }: { code: string }) {
         }),
       });
       const data = await res.json();
+      // Reset unread on user message
+      setUnreadCount(0);
       if (!data.handoffActive) {
         const newMsgs: Array<{ role: string; content: string; id?: string }> = [{ role: "assistant", content: data.reply }];
         if (data.handoffDetected) {
@@ -389,6 +409,7 @@ function WidgetInner({ code }: { code: string }) {
 
   // ===== FULL CHAT VIEW (always shown — parent handles collapse) =====
   const sendCollapseToParent = () => {
+    setUnreadCount(0);
     if (typeof window !== "undefined" && window.parent !== window) {
       window.parent.postMessage({ type: "botforge_collapse" }, "*");
     }

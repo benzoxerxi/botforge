@@ -58,11 +58,17 @@ export async function GET(
   preconnectLink.href = 'https://chat.benzos.uk';
   document.head.appendChild(preconnectLink);
 
+  // Inject animation + badge styles
+  var style = document.createElement('style');
+  style.textContent = '@keyframes bf-bounce-in{0%{transform:scale(0.3);opacity:0}50%{transform:scale(1.1)}70%{transform:scale(0.9)}100%{transform:scale(1);opacity:1}}@keyframes bf-spring-open{0%{opacity:0;transform:translateY(20px)scale(0.85)}40%{opacity:1;transform:translateY(0)scale(1.05)}70%{transform:scale(0.97)}100%{opacity:1;transform:scale(1)}}@keyframes bf-spring-close{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:translateY(10px)scale(0.85)}}.bf-bounce{animation:bf-bounce-in 0.45s ease}.bf-spring-open{animation:bf-spring-open 0.35s ease forwards}.bf-spring-close{animation:bf-spring-close 0.18s ease forwards}';
+  document.head.appendChild(style);
+
   var container = document.createElement('div');
   container.id = 'botforge-widget-container';
   container.style.cssText = 'position:fixed!important;z-index:2147483647!important;${posX};${posY};bottom:20px;margin:0!important;padding:0!important;width:auto;height:auto;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);overflow:visible!important;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:transparent!important;border:none!important;outline:none!important;';
 
   var iframe = null;
+  var unreadBadge = null;
 
   function makeButton(isCircle) {
     var btn = document.createElement('button');
@@ -70,12 +76,12 @@ export async function GET(
     btn.innerText = companyLetter;
     btn.setAttribute('aria-label', 'Open chat');
     btn.style.cssText = 'width:56px;height:56px;border-radius:50%;background:${fabGradient};background-image:${fabGradient};box-shadow:${fabGlow};cursor:pointer;padding:0;margin:0;border:none;display:flex;align-items:center;justify-content:center;color:' + btnTextColor + ';font-size:24px;font-weight:800;transition:transform 0.15s ease,box-shadow 0.15s ease;background-color:transparent!important;';
+    btn.classList.add('bf-bounce');
 
     var preloaded = false;
     btn.addEventListener('mouseenter', function() {
       btn.style.transform = 'scale(1.1)';
       btn.style.boxShadow = '${fabGlowHover}';
-      // Prefetch iframe on first hover for instant open
       if (!preloaded) {
         preloaded = true;
         var preload = document.createElement('link');
@@ -99,7 +105,7 @@ export async function GET(
   function makeIframe(src) {
     var el = document.createElement('iframe');
     el.id = 'botforge-widget-iframe';
-    el.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px);background-color:${bgColor};border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:block;opacity:0;transform:scale(0.95);transition:opacity 0.2s ease,transform 0.2s ease;';
+    el.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px);background-color:${bgColor};border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:block;opacity:0;transform:translateY(20px)scale(0.85);';
     el.allow = 'clipboard-read; clipboard-write';
     el.src = src;
     return el;
@@ -108,8 +114,8 @@ export async function GET(
   function openChat() {
     if (iframe) {
       // Re-expand (safety net — collapseToButton sets iframe=null)
-      iframe.style.opacity = '1';
-      iframe.style.transform = 'scale(1)';
+      iframe.classList.remove('bf-spring-close');
+      iframe.classList.add('bf-spring-open');
       return;
     }
 
@@ -124,25 +130,22 @@ export async function GET(
       container.appendChild(iframe);
     }
 
-    // Trigger entrance animation (fade+scale)
-    requestAnimationFrame(function() {
-      requestAnimationFrame(function() {
-        iframe.style.opacity = '1';
-        iframe.style.transform = 'scale(1)';
-      });
-    });
+    // Spring entrance animation
+    iframe.classList.add('bf-spring-open');
   }
 
   function collapseToButton() {
     if (!iframe) return;
 
-    // Animate out, then remove
-    iframe.style.opacity = '0';
-    iframe.style.transform = 'scale(0.95)';
+    // Reset unread badge on minimize
+    updateBadge(0);
+
+    // Spring close animation, then remove
+    iframe.classList.remove('bf-spring-open');
+    iframe.classList.add('bf-spring-close');
     setTimeout(function() {
       iframe.remove();
       iframe = null;
-      // Reset container to button-only state
       container.style.boxShadow = 'none';
       container.style.borderRadius = '0';
       container.style.background = 'transparent';
@@ -151,7 +154,23 @@ export async function GET(
       container.style.height = 'auto';
       var btn = makeButton(false);
       container.appendChild(btn);
-    }, 150);
+    }, 180);
+  }
+
+  function updateBadge(count) {
+    if (count > 0 && !unreadBadge) {
+      unreadBadge = document.createElement('div');
+      unreadBadge.style.cssText = 'position:absolute;top:-4px;right:-4px;width:20px;height:20px;border-radius:50%;background:#ef4444;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2147483647;pointer-events:none;box-shadow:0 0 6px rgba(239,68,68,0.5);line-height:1;';
+      container.appendChild(unreadBadge);
+    }
+    if (unreadBadge) {
+      if (count > 0) {
+        unreadBadge.textContent = count > 99 ? '99+' : String(count);
+        unreadBadge.style.display = 'flex';
+      } else {
+        unreadBadge.style.display = 'none';
+      }
+    }
   }
 
   // Start with button
@@ -165,6 +184,8 @@ export async function GET(
     if (!d || !d.type) return;
     if (d.type === 'botforge_collapse') {
       collapseToButton();
+    } else if (d.type === 'botforge_unread') {
+      updateBadge(d.count || 0);
     }
   });
 
