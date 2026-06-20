@@ -52,7 +52,11 @@ export async function GET(
   var company = "${widget.company.name}";
   var widgetCode = "${widget.widgetCode}";
 
-
+  // Preconnect for faster iframe load
+  var preconnectLink = document.createElement('link');
+  preconnectLink.rel = 'preconnect';
+  preconnectLink.href = 'https://chat.benzos.uk';
+  document.head.appendChild(preconnectLink);
 
   var container = document.createElement('div');
   container.id = 'botforge-widget-container';
@@ -65,11 +69,20 @@ export async function GET(
     btn.id = 'botforge-widget-btn';
     btn.innerText = companyLetter;
     btn.setAttribute('aria-label', 'Open chat');
-    btn.style.cssText = 'width:56px;height:56px;border-radius:50%;background:${fabGradient};background-image:${fabGradient};box-shadow:${fabGlow};cursor:pointer;padding:0;margin:0;border:none;text-align:center;line-height:56px;color:' + btnTextColor + ';font-size:24px;font-weight:800;transition:transform 0.15s ease,box-shadow 0.15s ease;display:block;background-color:transparent!important;';
+    btn.style.cssText = 'width:56px;height:56px;border-radius:50%;background:${fabGradient};background-image:${fabGradient};box-shadow:${fabGlow};cursor:pointer;padding:0;margin:0;border:none;display:flex;align-items:center;justify-content:center;color:' + btnTextColor + ';font-size:24px;font-weight:800;transition:transform 0.15s ease,box-shadow 0.15s ease;background-color:transparent!important;';
 
+    var preloaded = false;
     btn.addEventListener('mouseenter', function() {
       btn.style.transform = 'scale(1.1)';
       btn.style.boxShadow = '${fabGlowHover}';
+      // Prefetch iframe on first hover for instant open
+      if (!preloaded) {
+        preloaded = true;
+        var preload = document.createElement('link');
+        preload.rel = 'prefetch';
+        preload.href = 'https://chat.benzos.uk/widget/' + widgetCode;
+        document.head.appendChild(preload);
+      }
     });
     btn.addEventListener('mouseleave', function() {
       btn.style.transform = 'scale(1)';
@@ -86,7 +99,7 @@ export async function GET(
   function makeIframe(src) {
     var el = document.createElement('iframe');
     el.id = 'botforge-widget-iframe';
-    el.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px);background-color:${bgColor};border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:block;';
+    el.style.cssText = 'border:none;width:380px;height:560px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px);background-color:${bgColor};border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);display:block;opacity:0;transform:scale(0.95);transition:opacity 0.2s ease,transform 0.2s ease;';
     el.allow = 'clipboard-read; clipboard-write';
     el.src = src;
     return el;
@@ -94,19 +107,14 @@ export async function GET(
 
   function openChat() {
     if (iframe) {
-      // Re-expand from minimized 56px iframe
-      iframe.style.width = '380px';
-      iframe.style.height = '560px';
-      iframe.style.borderRadius = '16px';
-      iframe.style.boxShadow = '0 8px 32px rgba(0,0,0,0.4)';
-      try {
-        iframe.contentWindow.postMessage({ type: 'botforge_expand' }, 'https://chat.benzos.uk');
-      } catch(e) {}
+      // Re-expand (safety net — collapseToButton sets iframe=null)
+      iframe.style.opacity = '1';
+      iframe.style.transform = 'scale(1)';
       return;
     }
 
     // First open: create iframe, replace button
-    iframe = makeIframe('https://chat.benzos.uk/widget/' + widgetCode + '?open');
+    iframe = makeIframe('https://chat.benzos.uk/widget/' + widgetCode);
 
     var btn = document.getElementById('botforge-widget-btn');
     if (btn) {
@@ -115,26 +123,40 @@ export async function GET(
     } else {
       container.appendChild(iframe);
     }
+
+    // Trigger entrance animation (fade+scale)
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        iframe.style.opacity = '1';
+        iframe.style.transform = 'scale(1)';
+      });
+    });
   }
 
   function collapseToButton() {
     if (!iframe) return;
-    iframe.remove();
-    iframe = null;
-    // Reset container to button-only state
-    container.style.boxShadow = 'none';
-    container.style.borderRadius = '0';
-    container.style.background = 'transparent';
-    container.style.backgroundColor = 'transparent';
-    container.style.width = 'auto';
-    container.style.height = 'auto';
-    var btn = makeButton(false);
-    container.appendChild(btn);
+
+    // Animate out, then remove
+    iframe.style.opacity = '0';
+    iframe.style.transform = 'scale(0.95)';
+    setTimeout(function() {
+      iframe.remove();
+      iframe = null;
+      // Reset container to button-only state
+      container.style.boxShadow = 'none';
+      container.style.borderRadius = '0';
+      container.style.background = 'transparent';
+      container.style.backgroundColor = 'transparent';
+      container.style.width = 'auto';
+      container.style.height = 'auto';
+      var btn = makeButton(false);
+      container.appendChild(btn);
+    }, 150);
   }
 
   // Start with button
   container.appendChild(makeButton(true));
-  (document.documentElement || document.body).appendChild(container);
+  document.documentElement.appendChild(container);
 
   // Listen for messages from widget
   window.addEventListener('message', function(event) {

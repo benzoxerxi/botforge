@@ -93,6 +93,7 @@ function WidgetInner({ code }: { code: string }) {
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const resolvedRef = useRef(false);
+  const msgKeyCounter = useRef(0);
 
   const resetChat = () => {
     setMessages(config ? [{ role: "assistant", content: config.greetingMessage }] : []);
@@ -395,7 +396,7 @@ function WidgetInner({ code }: { code: string }) {
   return (
     <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: config.backgroundColor || "#08051a" }}>
       {/* === STATIC HEADER === */}
-      <div className="flex-shrink-0 px-4 py-3 flex items-center gap-2.5 border-b border-white/10" style={{ background: `linear-gradient(135deg, ${accent}10, ${shiftColor(accent, -50)}10)`, backgroundColor: config.backgroundColor || "#08051a" }}>
+      <div className="flex-shrink-0 px-4 py-3 flex items-center gap-2.5 border-b border-white/10" style={{ background: `linear-gradient(135deg, ${accent}15, ${shiftColor(accent, -50)}15)`, backgroundColor: config.backgroundColor || "#08051a" }}>
         <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md" style={{ background: fabGradient.gradient }}>
           {config.companyName?.[0] || "B"}
         </div>
@@ -446,9 +447,9 @@ function WidgetInner({ code }: { code: string }) {
       </div>
 
       {/* === MESSAGES === */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ scrollBehavior: "smooth" }}>
         {messages.map((msg, i) => (
-          <div key={msg.id || msg.content + msg.role + i} className={`flex ${msg.role === "user" ? "justify-end" : msg.role === "system" ? "justify-center" : "justify-start"}`}>
+          <div key={msg.id || 'm-' + msg.role + '-' + i + '-' + msgKeyCounter.current++} className={`flex ${msg.role === "user" ? "justify-end" : msg.role === "system" ? "justify-center" : "justify-start"}`} style={{ contentVisibility: "auto", containIntrinsicSize: "0 60px" }}>
             {msg.role === "system" ? (
               <div className="text-[11px] text-white/40 italic px-2 py-1 text-center max-w-[90%]" style={{ whiteSpace: "pre-wrap" }}>
                 {msg.content}
