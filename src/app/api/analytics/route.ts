@@ -26,9 +26,12 @@ export async function GET(request: Request) {
     select: { tokensUsed: true, tokenLimit: true },
   });
 
-  // Get conversation stats
+  // 30-day window for recent stats
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  // Get conversation stats (last 30 days)
   const totalConversations = await prisma.conversation.count({
-    where: { companyId },
+    where: { companyId, createdAt: { gte: thirtyDaysAgo } },
   });
 
   const activeConversations = await prisma.conversation.count({
@@ -42,15 +45,16 @@ export async function GET(request: Request) {
     },
   });
 
-  // Total messages (non-system)
+  // Messages sent in the last 30 days
   const messageCount = await prisma.message.count({
     where: {
       conversation: { companyId },
       role: { notIn: ["system"] },
+      createdAt: { gte: thirtyDaysAgo },
     },
   });
 
-  // Total tokens used by this company
+  // Total tokens used (all-time for billing accuracy)
   const tokenAgg = await prisma.conversation.aggregate({
     where: { companyId },
     _sum: { tokenCost: true },

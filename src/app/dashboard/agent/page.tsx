@@ -72,7 +72,7 @@ export default function AgentPage() {
   const [loading, setLoading] = useState(true);
   const [agentInput, setAgentInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [filter, setFilter] = useState<"all" | "pending" | "active">("all");
+  const [filter, setFilter] = useState<"all" | "pending" | "assigned" | "active">("all");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -97,6 +97,7 @@ export default function AgentPage() {
   const filteredConvs = conversations.filter(c => {
     if (filter === "pending") return c.status === "handoff_requested";
     if (filter === "active") return c.status === "handoff_active" || c.status === "handoff_requested";
+    if (filter === "assigned") return c.agentChats && c.agentChats.length > 0 && c.status !== "closed";
     return true;
   });
 
@@ -237,6 +238,7 @@ export default function AgentPage() {
           <p className="text-xs text-[var(--color-muted-foreground)] mt-0.5">
             {conversations.filter(c => c.status === "handoff_requested").length} pending ·{" "}
             {conversations.filter(c => c.status === "handoff_active").length} active ·{" "}
+            {conversations.filter(c => c.agentChats && c.agentChats.length > 0 && c.status !== "closed").length} assigned ·{" "}
             {conversations.length} total
           </p>
         </div>
@@ -255,7 +257,7 @@ export default function AgentPage() {
           {/* Filters */}
           <div className="p-3 border-b border-[var(--color-border)]">
             <div className="flex gap-1 bg-[var(--color-muted)] rounded-lg p-0.5">
-              {(["all", "pending", "active"] as const).map((f) => (
+              {(["all", "pending", "assigned", "active"] as const).map((f) => (
                 <button
                   key={f}
                   onClick={() => setFilter(f)}
@@ -265,7 +267,7 @@ export default function AgentPage() {
                       : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
                   }`}
                 >
-                  {f === "all" ? "All" : f === "pending" ? `Pending (${conversations.filter(c => c.status === "handoff_requested").length})` : `Active (${conversations.filter(c => c.status === "handoff_active").length})`}
+                  {f === "all" ? "All" : f === "pending" ? `Pending (${conversations.filter(c => c.status === "handoff_requested").length})` : f === "assigned" ? `Assigned (${conversations.filter(c => c.agentChats && c.agentChats.length > 0 && c.status !== "closed").length})` : `Active (${conversations.filter(c => c.status === "handoff_active").length})`}
                 </button>
               ))}
             </div>

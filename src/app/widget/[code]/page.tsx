@@ -24,6 +24,7 @@ interface WidgetConfig {
   endChatButtonColor: string;
   endChatButtonLabel: string;
   endChatButtonTextColor: string;
+  botTextColor: string;
 }
 
 export default function WidgetPage() {
@@ -494,7 +495,7 @@ function WidgetInner({ code }: { code: string }) {
                       ? config.userTextColor || "#fff"
                       : msg.role === "agent"
                       ? config.agentTextColor || "#fbbf24"
-                      : config.textColor || "#fff",
+                      : config.botTextColor || config.textColor || "#fff",
                   border:
                     msg.role === "user" ? "none"
                     : msg.role === "agent" ? "1px solid rgba(251, 191, 36, 0.25)"
@@ -504,9 +505,7 @@ function WidgetInner({ code }: { code: string }) {
                 {msg.role === "agent" && (
                   <div className="text-[10px] text-amber-400/60 mb-1 font-medium">👤 Agent</div>
                 )}
-                {msg.role === "assistant" && (
-                  <div className="text-[10px] text-white/40 mb-1 font-medium">🤖 Bot</div>
-                )}
+
                 <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
               </div>
             )}

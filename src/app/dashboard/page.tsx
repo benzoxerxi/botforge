@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   MessageSquare,
   Users,
@@ -18,6 +18,7 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import ManageCompanyModal from "./ManageCompanyModal";
 
 interface Analytics {
   company: { tokensUsed: number; tokenLimit: number };
@@ -34,6 +35,26 @@ export default function DashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  const fetchData = useCallback(() => {
+    const companyId = session?.user?.companyId;
+
+    if (companyId) {
+      fetch(`/api/analytics?companyId=${companyId}`)
+        .then((r) => r.json())
+        .then(setAnalytics)
+        .catch(() => {});
+    }
+
+    if (session?.user?.role === "super_admin") {
+      fetch("/api/admin/companies")
+        .then((r) => r.json())
+        .then(setStats)
+        .catch(() => {});
+    }
+
+    setLoading(false);
+  }, [session]);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -41,23 +62,11 @@ export default function DashboardPage() {
     }
 
     if (status === "authenticated") {
-      const companyId = session?.user?.companyId;
-
-      if (companyId) {
-        fetch(`/api/analytics?companyId=${companyId}`)
-          .then((r) => r.json())
-          .then(setAnalytics)
-          .finally(() => setLoading(false));
-      }
-
-      if (session?.user?.role === "super_admin") {
-        fetch("/api/admin/companies")
-          .then((r) => r.json())
-          .then(setStats)
-          .catch(() => {});
-      }
+      fetchData();
+      const interval = setInterval(fetchData, 10000);
+      return () => clearInterval(interval);
     }
-  }, [status, router, session]);
+  }, [status, router, session, fetchData]);
 
   const isSuperAdmin = session?.user?.role === "super_admin";
 
@@ -90,7 +99,7 @@ export default function DashboardPage() {
             </div>
           </div>
         ) : (
-          <CompanyAnalytics analytics={analytics} />
+          <CompanyAnalytics analytics={analytics} router={router} isSuperAdmin={isSuperAdmin} />
         )}
       </div>
     </ErrorBoundary>
@@ -117,7 +126,7 @@ function StatCard({ icon: Icon, label, value, trend }: { icon: any; label: strin
   );
 }
 
-function CompanyAnalytics({ analytics }: { analytics: Analytics | null }) {
+function CompanyAnalytics({ analytics, router, isSuperAdmin }: { analytics: Analytics | null; router: any; isSuperAdmin: boolean }) {
   if (!analytics) {
     return (
       <div className="p-12 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-center max-w-lg mx-auto">
@@ -274,6 +283,7 @@ function CompanyAnalytics({ analytics }: { analytics: Analytics | null }) {
 function AdminSection() {
   const [companies, setCompanies] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [manageCompany, setManageCompany] = useState<any | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/companies")
@@ -385,7 +395,10 @@ function AdminSection() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button className="text-[11px] px-3 py-1.5 rounded-lg font-medium bg-gradient-to-r from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 text-[var(--color-accent)] hover:from-[var(--color-accent)]/20 hover:to-[var(--color-primary)]/20 transition-all border border-[var(--color-border)]">
+                      <button
+                        onClick={() => setManageCompany(c)}
+                        className="text-[11px] px-3 py-1.5 rounded-lg font-medium bg-gradient-to-r from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 text-[var(--color-accent)] hover:from-[var(--color-accent)]/20 hover:to-[var(--color-primary)]/20 transition-all border border-[var(--color-border)]"
+                      >
                         Manage
                       </button>
                     </td>
@@ -406,6 +419,11 @@ function AdminSection() {
           </table>
         </div>
       </div>
+      <ManageCompanyModal
+        company={manageCompany}
+        open={!!manageCompany}
+        onClose={() => setManageCompany(null)}
+      />
     </div>
   );
 }

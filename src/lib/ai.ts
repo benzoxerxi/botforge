@@ -21,9 +21,10 @@ export async function getBotConfig(companyId: string, botId?: string) {
   if (!company) return null;
 
   const bot = company.bots[0];
-  const provider = (await getPlatformSetting("ai_provider")) || "deepseek";
-  const apiKey = await getPlatformSetting("ai_api_key");
-  const defaultModel = (await getPlatformSetting("ai_model")) || "deepseek-chat";
+  // Company-level AI config takes priority over platform-level
+  const provider = company.aiProvider || (await getPlatformSetting("ai_provider")) || "deepseek";
+  const apiKey = company.aiApiKey || (await getPlatformSetting("ai_api_key"));
+  const defaultModel = company.aiModel || (await getPlatformSetting("ai_model")) || "deepseek-chat";
 
   return {
     provider,

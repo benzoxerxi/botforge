@@ -25,6 +25,7 @@ export async function GET(
     primaryColor: widget.primaryColor,
     backgroundColor: widget.backgroundColor,
     textColor: widget.textColor,
+    botTextColor: widget.botTextColor,
     agentBubbleColor: widget.agentBubbleColor,
     agentTextColor: widget.agentTextColor,
     userBubbleColor: widget.userBubbleColor,

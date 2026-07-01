@@ -27,6 +27,7 @@ export async function PUT(request: NextRequest) {
       primaryColor,
       backgroundColor,
       textColor,
+      botTextColor,
       agentBubbleColor,
       agentTextColor,
       userBubbleColor,
@@ -65,6 +66,7 @@ export async function PUT(request: NextRequest) {
     if (primaryColor !== undefined) data.primaryColor = primaryColor;
     if (backgroundColor !== undefined) data.backgroundColor = backgroundColor;
     if (textColor !== undefined) data.textColor = textColor;
+    if (botTextColor !== undefined) data.botTextColor = botTextColor;
     if (agentBubbleColor !== undefined) data.agentBubbleColor = agentBubbleColor;
     if (agentTextColor !== undefined) data.agentTextColor = agentTextColor;
     if (userBubbleColor !== undefined) data.userBubbleColor = userBubbleColor;

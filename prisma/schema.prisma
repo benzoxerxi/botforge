@@ -18,6 +18,7 @@ model User {
   companyId String?
   company   Company? @relation("CompanyMembers", fields: [companyId], references: [id], onDelete: Cascade)
   active    Boolean  @default(true)
+  emailVerified DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -165,6 +166,7 @@ model ChatWidget {
   agentTextColor         String  @default("#ffffff")
   userBubbleColor        String  @default("#00f0ff")
   userTextColor          String  @default("#ffffff")
+  botTextColor           String  @default("#ffffff")  // v2.2 separate bot text color
 
   // Reset button
   resetButtonColor       String  @default("#00f0ff")
@@ -302,6 +304,19 @@ model PlatformSetting {
   id    String @id @default(cuid())
   key   String @unique
   value String
+}
+
+// ===== EMAIL VERIFICATION TOKENS =====
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
 }
 
 // ===== PASSWORD RESET TOKENS =====

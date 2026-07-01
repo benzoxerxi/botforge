@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import prisma from "@/lib/prisma";
+import { sendEmail } from "@/lib/email";
+import { welcomeEmailHtml } from "@/lib/email-templates";
 
 // POST /api/company/register — Self-register a new company
 export async function POST(request: Request) {
@@ -87,11 +90,40 @@ export async function POST(request: Request) {
       return { company, user, bot, widget };
     });
 
+    // Generate email verification token
+    const verifyToken = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await prisma.emailVerificationToken.create({
+      data: {
+        email,
+        token: verifyToken,
+        expiresAt,
+      },
+    });
+
     console.log(`[Register] New company created: ${companyName} (${result.company.id})`);
+
+    // Build verification URL
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://chat.benzos.uk";
+    const verifyUrl = `${appUrl}/api/verify-email?token=${verifyToken}`;
+
+    // Send welcome + verification email (non-blocking, fire and forget)
+    sendEmail(
+      email,
+      "🎉 Welcome to BotForge — Verify Your Account",
+      welcomeEmailHtml({
+        name: name || companyName + " Admin",
+        companyName,
+        verifyUrl,
+      }),
+    ).catch((err: unknown) => {
+      console.error("[Register] Welcome email failed (non-blocking):", err);
+    });
 
     return NextResponse.json({
       success: true,
-      message: "Company registered successfully! Check your email or sign in now.",
+      message: "Company registered successfully! Check your email to verify your account.",
     });
   } catch (err: any) {
     console.error("[Register error]", err);

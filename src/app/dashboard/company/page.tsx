@@ -66,6 +66,7 @@ export default function CompanyPage() {
   const [agentTextColor, setAgentTextColor] = useState("#ffffff");
   const [userBubbleColor, setUserBubbleColor] = useState("#00f0ff");
   const [userTextColor, setUserTextColor] = useState("#ffffff");
+  const [botTextColor, setBotTextColor] = useState("#ffffff");
   const [resetButtonColor, setResetButtonColor] = useState("#00f0ff");
   const [resetButtonLabel, setResetButtonLabel] = useState("Start new chat");
   const [resetButtonTextColor, setResetButtonTextColor] = useState("#ffffff");
@@ -141,6 +142,7 @@ export default function CompanyPage() {
           setAgentTextColor(w.agentTextColor || "#ffffff");
           setUserBubbleColor(w.userBubbleColor || "#00f0ff");
           setUserTextColor(w.userTextColor || "#ffffff");
+          setBotTextColor(w.botTextColor || "#ffffff");
           setResetButtonColor(w.resetButtonColor || "#00f0ff");
           setResetButtonLabel(w.resetButtonLabel || "Start new chat");
           setResetButtonTextColor(w.resetButtonTextColor || "#ffffff");
@@ -218,6 +220,7 @@ export default function CompanyPage() {
           agentTextColor,
           userBubbleColor,
           userTextColor,
+          botTextColor,
           resetButtonColor,
           resetButtonLabel,
           resetButtonTextColor,
@@ -464,6 +467,7 @@ export default function CompanyPage() {
   const accent = company?.chatWidgets?.[0]?.primaryColor || "#00f0ff";
   const bgColor = company?.chatWidgets?.[0]?.backgroundColor || "#0a0e1a";
   const textColor = company?.chatWidgets?.[0]?.textColor || "#ffffff";
+  const previewBotTextColor = company?.chatWidgets?.[0]?.botTextColor || textColor;
 
   return (
     <ErrorBoundary>
@@ -500,7 +504,6 @@ export default function CompanyPage() {
           { id: "bot" as const, label: "🤖 Bot Config" },
           { id: "knowledge" as const, label: "📚 Knowledge Base" },
           { id: "widget" as const, label: "🌐 Widget" },
-          { id: "test" as const, label: "🧪 Test Chat" },
           { id: "agents" as const, label: "👤 Agents" },
           { id: "catalog" as const, label: "📦 Catalog" },
           { id: "messenger" as const, label: "📱 Messenger" },
@@ -770,6 +773,7 @@ export default function CompanyPage() {
           agentTextColor_={agentTextColor}
           userBubbleColor_={userBubbleColor}
           userTextColor_={userTextColor}
+          botTextColor_={botTextColor}
           resetButtonColor_={resetButtonColor}
           resetButtonLabel_={resetButtonLabel}
           resetButtonTextColor_={resetButtonTextColor}
@@ -790,6 +794,7 @@ export default function CompanyPage() {
           onAgentTextChange={setAgentTextColor}
           onUserBubbleChange={setUserBubbleColor}
           onUserTextChange={setUserTextColor}
+          onBotTextChange={setBotTextColor}
           onResetColorChange={setResetButtonColor}
           onResetLabelChange={setResetButtonLabel}
           onResetTextChange={setResetButtonTextColor}
@@ -873,93 +878,7 @@ export default function CompanyPage() {
       {/* MESSENGER TAB */}
       {activeTab === "messenger" && <MessengerTab companyId={company?.id} company={company} />}
 
-      {activeTab === "test" && (
-        <div className="flex flex-col rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden" style={{ height: "450px", backgroundColor: bgColor }}>
-          {/* Header — matches widget exactly */}
-          <div className="p-3 flex items-center gap-2 border-b border-white/10">
-            <div
-              className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-              style={{ backgroundColor: accent }}
-            >
-              {company?.name?.[0] || "B"}
-            </div>
-            <div className="flex-1">
-              <div className="text-sm font-semibold" style={{ color: textColor }}>
-                {botName || "Support"}
-              </div>
-              <div className="text-[10px]" style={{ color: textColor + "88" }}>
-                Preview — real widget appearance
-              </div>
-            </div>
-          </div>
 
-          {/* Messages — matches widget styling */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-2" style={{ backgroundColor: bgColor }}>
-            {testMessages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[80%] px-3 py-2 rounded-xl text-sm ${
-                    msg.role === "user" ? "rounded-br-sm" : "rounded-bl-sm border"
-                  }`}
-                  style={{
-                    backgroundColor:
-                      msg.role === "user"
-                        ? accent
-                        : bgColor + "bb",
-                    color:
-                      msg.role === "user"
-                        ? "#fff"
-                        : textColor,
-                    border:
-                      msg.role === "user"
-                        ? "none"
-                        : "1px solid rgba(255,255,255,0.1)",
-                  }}
-                >
-                  <span style={{ whiteSpace: "pre-wrap" }}>{msg.content}</span>
-                </div>
-              </div>
-            ))}
-            {testSending && (
-              <div className="flex justify-start">
-                <div className="px-3 py-2 rounded-xl rounded-bl-sm border" style={{ backgroundColor: bgColor + "bb", border: "1px solid rgba(255,255,255,0.1)" }}>
-                  <div className="flex gap-1.5">
-                    <div className="w-2 h-2 rounded-full opacity-60 animate-bounce" style={{ backgroundColor: accent }} />
-                    <div className="w-2 h-2 rounded-full opacity-60 animate-bounce" style={{ backgroundColor: accent, animationDelay: "0.15s" }} />
-                    <div className="w-2 h-2 rounded-full opacity-60 animate-bounce" style={{ backgroundColor: accent, animationDelay: "0.3s" }} />
-                  </div>
-                </div>
-              </div>
-            )}
-            <div ref={testChatEndRef} />
-          </div>
-
-          {/* Input */}
-          <div className="p-3 flex gap-2" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-            <input
-              value={testInput}
-              onChange={(e) => setTestInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  sendTestMessage();
-                }
-              }}
-              placeholder="Type a message..."
-              className="flex-1 px-3 py-2 rounded-lg text-sm text-white placeholder-[var(--color-foreground)]/40 focus:outline-none"
-              style={{ backgroundColor: (bgColor === "#0a0e1a" ? "#0f1325" : bgColor) + "dd", border: "1px solid rgba(255,255,255,0.1)" }}
-            />
-            <button
-              onClick={sendTestMessage}
-              disabled={testSending || !testInput.trim()}
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:opacity-90 transition-all disabled:opacity-50"
-              style={{ backgroundColor: accent }}
-            >
-              {testSending ? "..." : "Send"}
-            </button>
-          </div>
-        </div>
-      )}
     </div>
     </ErrorBoundary>
   );
@@ -1106,13 +1025,13 @@ function AgentSection({ companyId, botId }: { companyId?: string; botId?: string
 function WidgetSettings({
   widget, companyName, companyId,
   title, subtitle, greeting, accent, bg, text, position_,
-  agentBubbleColor_, agentTextColor_, userBubbleColor_, userTextColor_,
+  agentBubbleColor_, agentTextColor_, userBubbleColor_, userTextColor_, botTextColor_,
   resetButtonColor_, resetButtonLabel_, resetButtonTextColor_,
   endChatButtonColor_, endChatButtonLabel_, endChatButtonTextColor_,
   preset, saving, saveMsg,
   onTitleChange, onSubtitleChange, onGreetingChange,
   onAccentChange, onBgChange, onTextChange, onPositionChange,
-  onAgentBubbleChange, onAgentTextChange, onUserBubbleChange, onUserTextChange,
+  onAgentBubbleChange, onAgentTextChange, onUserBubbleChange, onUserTextChange, onBotTextChange,
   onResetColorChange, onResetLabelChange, onResetTextChange,
   onEndChatColorChange, onEndChatLabelChange, onEndChatTextChange,
   onPresetChange, onSave,
@@ -1120,14 +1039,14 @@ function WidgetSettings({
   widget: any; companyName: string; companyId: string;
   title: string; subtitle: string; greeting: string;
   accent: string; bg: string; text: string; position_: string;
-  agentBubbleColor_: string; agentTextColor_: string; userBubbleColor_: string; userTextColor_: string;
+  agentBubbleColor_: string; agentTextColor_: string; userBubbleColor_: string; userTextColor_: string; botTextColor_: string;
   resetButtonColor_: string; resetButtonLabel_: string; resetButtonTextColor_: string;
   endChatButtonColor_: string; endChatButtonLabel_: string; endChatButtonTextColor_: string;
   preset: string; saving: boolean; saveMsg: string | null;
   onTitleChange: (v: string) => void; onSubtitleChange: (v: string) => void; onGreetingChange: (v: string) => void;
   onAccentChange: (v: string) => void; onBgChange: (v: string) => void; onTextChange: (v: string) => void; onPositionChange: (v: string) => void;
   onAgentBubbleChange: (v: string) => void; onAgentTextChange: (v: string) => void;
-  onUserBubbleChange: (v: string) => void; onUserTextChange: (v: string) => void;
+  onUserBubbleChange: (v: string) => void; onUserTextChange: (v: string) => void; onBotTextChange: (v: string) => void;
   onResetColorChange: (v: string) => void; onResetLabelChange: (v: string) => void; onResetTextChange: (v: string) => void;
   onEndChatColorChange: (v: string) => void; onEndChatLabelChange: (v: string) => void; onEndChatTextChange: (v: string) => void;
   onPresetChange: (v: string) => void; onSave: () => void;
@@ -1135,11 +1054,11 @@ function WidgetSettings({
   const applyPreset = (name: string) => {
     onPresetChange(name);
     const presets: Record<string, any> = {
-      cyber: { accent: "#00f0ff", bg: "#0a0e1a", text: "#ffffff", agentBubble: "rgba(255,255,255,0.06)", agentText: "#ffffff", userBubble: "#00f0ff", userText: "#ffffff", resetColor: "#00f0ff", resetText: "#ffffff", endColor: "#ef4444", endText: "#ffffff" },
-      darkLux: { accent: "#a78bfa", bg: "#0c0015", text: "#e2e8f0", agentBubble: "rgba(255,255,255,0.04)", agentText: "#e2e8f0", userBubble: "#a78bfa", userText: "#ffffff", resetColor: "#a78bfa", resetText: "#ffffff", endColor: "#7f1d1d", endText: "#e2e8f0" },
-      softBlue: { accent: "#3b82f6", bg: "#0f172a", text: "#f1f5f9", agentBubble: "rgba(59,130,246,0.08)", agentText: "#93c5fd", userBubble: "#3b82f6", userText: "#ffffff", resetColor: "#3b82f6", resetText: "#ffffff", endColor: "#dc2626", endText: "#ffffff" },
-      warmAmber: { accent: "#f59e0b", bg: "#1c1917", text: "#fff7ed", agentBubble: "rgba(251,191,36,0.08)", agentText: "#fde68a", userBubble: "#f59e0b", userText: "#000", resetColor: "#f59e0b", resetText: "#000", endColor: "#b91c1c", endText: "#fff7ed" },
-      mintNight: { accent: "#34d399", bg: "#022c22", text: "#ecfdf5", agentBubble: "rgba(52,211,153,0.08)", agentText: "#6ee7b7", userBubble: "#34d399", userText: "#000", resetColor: "#34d399", resetText: "#000", endColor: "#7f1d1d", endText: "#ecfdf5" },
+      cyber: { accent: "#00f0ff", bg: "#0a0e1a", text: "#ffffff", botText: "#ffffff", agentBubble: "rgba(255,255,255,0.06)", agentText: "#ffffff", userBubble: "#00f0ff", userText: "#ffffff", resetColor: "#00f0ff", resetText: "#ffffff", endColor: "#ef4444", endText: "#ffffff" },
+      darkLux: { accent: "#a78bfa", bg: "#0c0015", text: "#e2e8f0", botText: "#e2e8f0", agentBubble: "rgba(255,255,255,0.04)", agentText: "#e2e8f0", userBubble: "#a78bfa", userText: "#ffffff", resetColor: "#a78bfa", resetText: "#ffffff", endColor: "#7f1d1d", endText: "#e2e8f0" },
+      softBlue: { accent: "#3b82f6", bg: "#0f172a", text: "#f1f5f9", botText: "#f1f5f9", agentBubble: "rgba(59,130,246,0.08)", agentText: "#93c5fd", userBubble: "#3b82f6", userText: "#ffffff", resetColor: "#3b82f6", resetText: "#ffffff", endColor: "#dc2626", endText: "#ffffff" },
+      warmAmber: { accent: "#f59e0b", bg: "#1c1917", text: "#fff7ed", botText: "#fff7ed", agentBubble: "rgba(251,191,36,0.08)", agentText: "#fde68a", userBubble: "#f59e0b", userText: "#000", resetColor: "#f59e0b", resetText: "#000", endColor: "#b91c1c", endText: "#fff7ed" },
+      mintNight: { accent: "#34d399", bg: "#022c22", text: "#ecfdf5", botText: "#ecfdf5", agentBubble: "rgba(52,211,153,0.08)", agentText: "#6ee7b7", userBubble: "#34d399", userText: "#000", resetColor: "#34d399", resetText: "#000", endColor: "#7f1d1d", endText: "#ecfdf5" },
     };
     const p = presets[name];
     if (p) {
@@ -1150,6 +1069,7 @@ function WidgetSettings({
       onAgentTextChange(p.agentText);
       onUserBubbleChange(p.userBubble);
       onUserTextChange(p.userText);
+      onBotTextChange(p.botText || p.text || "#ffffff");
       onResetColorChange(p.resetColor);
       onResetTextChange(p.resetText);
       onEndChatColorChange(p.endColor);
@@ -1218,6 +1138,7 @@ function WidgetSettings({
         {/* Bubble Colors */}
         <div className="pt-2 border-t border-white/5 space-y-2">
           <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">💬 Chat Bubbles</label>
+          {colorRow("Bot Text", botTextColor_, onBotTextChange)}
           {colorRow("Agent BG", agentBubbleColor_, onAgentBubbleChange)}
           {colorRow("Agent Text", agentTextColor_, onAgentTextChange)}
           {colorRow("User BG", userBubbleColor_, onUserBubbleChange)}

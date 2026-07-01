@@ -31,7 +31,7 @@ export default function AgentPanel() {
   const [loading, setLoading] = useState(true);
   const [agentInput, setAgentInput] = useState("");
   const [sending, setSending] = useState(false);
-  const [filter, setFilter] = useState<"pending" | "active" | "all">("pending");
+  const [filter, setFilter] = useState<"pending" | "assigned" | "active" | "all">("pending");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -196,6 +196,7 @@ export default function AgentPanel() {
 
   const filteredConvs = conversations.filter((c) => {
     if (filter === "pending") return c.status === "handoff_requested";
+    if (filter === "assigned") return c.agentChats && c.agentChats.length > 0 && c.status !== "closed";
     if (filter === "active") return c.status === "handoff_active";
     return true;
   });
@@ -216,7 +217,7 @@ export default function AgentPanel() {
       <div className="w-72 flex-shrink-0 border-r border-[var(--color-border)] flex flex-col bg-[var(--color-card)]">
         {/* Filter tabs */}
         <div className="flex border-b border-[var(--color-border)]">
-          {(["pending", "active", "all"] as const).map((f) => (
+          {(["pending", "assigned", "active", "all"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -226,7 +227,7 @@ export default function AgentPanel() {
                   : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
               }`}
             >
-              {f === "pending" ? "🟡 Pending" : f === "active" ? "🟢 Active" : "All"}
+              {f === "pending" ? "🔶 Pending" : f === "assigned" ? "🔵 Assigned" : f === "active" ? "🟢 Active" : "All"}
             </button>
           ))}
         </div>
