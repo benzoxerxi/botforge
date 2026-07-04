@@ -27,12 +27,26 @@ export async function GET(request: Request) {
   let statusFilter: string[];
   if (filter === "pending") statusFilter = ["handoff_requested"];
   else if (filter === "active") statusFilter = ["handoff_active"];
+  else if (filter === "closed") statusFilter = ["closed"];
   else statusFilter = ["handoff_requested", "handoff_active"];
+
+  // Date range for closed filter: 1d | 7d | 30d | 365d | all
+  const closedSince = searchParams.get("closedSince");
+  let updatedAtFilter: { gte?: Date } | undefined;
+  if (filter === "closed" && closedSince && closedSince !== "all") {
+    const days = parseInt(closedSince, 10);
+    if (!isNaN(days)) {
+      const since = new Date();
+      since.setDate(since.getDate() - days);
+      updatedAtFilter = { gte: since };
+    }
+  }
 
   const conversations = await prisma.conversation.findMany({
     where: {
       companyId,
       status: { in: statusFilter },
+      ...(updatedAtFilter ? { updatedAt: updatedAtFilter } : {}),
     },
     include: {
       messages: {
@@ -112,6 +126,8 @@ export async function POST(request: Request) {
         data: {
           status: "handoff_active",
           agentId: userId,
+          assignedAgentId: null, // clear assignment on join
+          assignedAt: null,
         },
       });
 

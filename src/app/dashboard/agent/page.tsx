@@ -5,6 +5,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useTheme } from "@/components/ThemeProvider";
 import {
   MessageSquare,
   Users,
@@ -20,6 +21,8 @@ import {
   Loader2,
   Inbox,
   CornerDownRight,
+  Moon,
+  Sun,
 } from "lucide-react";
 
 interface Message {
@@ -73,6 +76,7 @@ export default function AgentPage() {
   const [agentInput, setAgentInput] = useState("");
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "assigned" | "active">("all");
+  const { theme, toggle: toggleTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -242,13 +246,28 @@ export default function AgentPage() {
             {conversations.length} total
           </p>
         </div>
-        <button
-          onClick={fetchConversations}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          Refresh
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Light/Dark toggle */}
+          <button
+            onClick={toggleTheme}
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] hover:border-amber-400/40 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] group relative"
+            title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+          >
+            <div className="relative">
+              <Sun className={`w-3.5 h-3.5 transition-all duration-300 ${theme === 'light' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-90 scale-75 absolute top-0 left-0'}`} />
+              <Moon className={`w-3.5 h-3.5 transition-all duration-300 ${theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-75'}`} />
+            </div>
+            <span className="hidden sm:inline">{theme === 'light' ? 'Light' : 'Dark'}</span>
+          </button>
+
+          <button
+            onClick={fetchConversations}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-4 flex-1 h-[calc(100vh-14rem)]">

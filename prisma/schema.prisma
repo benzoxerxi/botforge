@@ -24,6 +24,7 @@ model User {
 
   // Agent-specific
   agentChats AgentChat[]
+  agentSessions AgentSession[]
 
   accounts  Account[]
   sessions  Session[]
@@ -106,6 +107,7 @@ model Company {
   updatedAt DateTime @updatedAt
 
   members      User[] @relation("CompanyMembers")
+  agentSessions AgentSession[]
   bots         Bot[]
   chatWidgets  ChatWidget[]
   knowledgeBases KnowledgeBase[]
@@ -238,6 +240,9 @@ model Conversation {
   tokenCost Int @default(0)
   messageCount Int @default(0)
 
+  assignedAgentId String?
+  assignedAt      DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -257,6 +262,22 @@ model Message {
   metadata  String? // JSON for additional data (intent, confidence, etc.)
 
   createdAt DateTime @default(now())
+}
+
+// ===== AGENT SESSIONS (online tracking) =====
+model AgentSession {
+  id            String   @id @default(cuid())
+  agentId       String   @unique
+  agent         User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  loadCount     Int      @default(0)
+  lastHeartbeat DateTime @default(now())
+  joinedAt      DateTime @default(now())
+  active        Boolean  @default(true)
+
+  @@index([companyId])
+  @@index([lastHeartbeat])
 }
 
 // ===== AGENT PANEL =====
