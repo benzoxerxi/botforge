@@ -77,6 +77,7 @@ export default function AgentPage() {
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "assigned" | "active">("all");
   const [typingPreview, setTypingPreview] = useState<string | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { theme, toggle: toggleTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -194,6 +195,11 @@ export default function AgentPage() {
             if (data.content && data.content.length > 0) {
               setTypingPreview(data.content);
               console.log('[TypingPreview] Set typingPreview to:', data.content.substring(0,40));
+              // Auto-hide after 3s of no typing event
+              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+              typingTimeoutRef.current = setTimeout(() => {
+                setTypingPreview(null);
+              }, 3000);
             } else {
               setTypingPreview(null);
               console.log('[TypingPreview] Cleared typingPreview');
@@ -220,21 +226,6 @@ export default function AgentPage() {
   }, [selectedConv?.id]);
 
   // Poll typing preview every 2s when a conversation is selected (in case SSE missed it)
-  useEffect(() => {
-    if (!selectedConv) return;
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/widget/typing/get?conversationId=${selectedConv.id}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.content && data.content.length > 0) {
-          setTypingPreview(data.content);
-        }
-      } catch {}
-    }, 2000);
-    return () => clearInterval(interval);
-  }, [selectedConv?.id]);
-
   // Auto-refresh conversation list every 10s to show new user messages in preview
   useEffect(() => {
     if (status !== "authenticated" || session.user?.role !== "company_admin") return;

@@ -228,23 +228,48 @@ export default function AgentPanel() {
     return () => clearInterval(msgInterval);
   }, [selectedConv?.id]);
 
-  // Poll typing preview every 2s
+  // SSE for typing preview
+  const typingSSERef = useRef<EventSource | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (!selectedConv) return;
-    const interval = setInterval(async () => {
+    if (typingSSERef.current) typingSSERef.current.close();
+    const es = new EventSource(`/api/sse/${selectedConv.id}`);
+    typingSSERef.current = es;
+    es.onmessage = (event) => {
       try {
-        const res = await fetch(`/api/widget/typing/get?conversationId=${selectedConv.id}`);
-        if (!res.ok) return;
-        const data = await res.json();
-        if (data.content && data.content.length > 0) {
-          setTypingPreview(data.content);
-        } else {
-          setTypingPreview(null);
+        const data = JSON.parse(event.data);
+        if (data.type === "user_typing") {
+          if (data.content && data.content.length > 0) {
+            setTypingPreview(data.content);
+            // Auto-hide after 3s of no typing event
+            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+            typingTimeoutRef.current = setTimeout(() => {
+              setTypingPreview(null);
+            }, 3000);
+          } else {
+            setTypingPreview(null);
+          }
         }
       } catch {}
-    }, 2000);
-    return () => clearInterval(interval);
+    };
+    es.onerror = () => {
+      es.close();
+      typingSSERef.current = null;
+    };
+    return () => {
+      es.close();
+      typingSSERef.current = null;
+    };
   }, [selectedConv?.id]);
+
+  // Cleanup typing timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+  }, []);
 
   // Scroll only when a NEW message arrives AFTER initial load
   const initialMsgsRef = useRef<string | null>(null);
