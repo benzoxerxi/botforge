@@ -189,10 +189,13 @@ export default function AgentPage() {
             });
           }
           if (data.type === "user_typing") {
+            console.log('[TypingPreview] Received user_typing:', data.content ? 'content=' + data.content.substring(0,40) : 'empty/null');
             if (data.content && data.content.length > 0) {
               setTypingPreview(data.content);
+              console.log('[TypingPreview] Set typingPreview to:', data.content.substring(0,40));
             } else {
               setTypingPreview(null);
+              console.log('[TypingPreview] Cleared typingPreview');
             }
           }
         } catch {}
@@ -213,6 +216,22 @@ export default function AgentPage() {
       if (eventSource) eventSource.close();
       clearInterval(interval);
     };
+  }, [selectedConv?.id]);
+
+  // Poll typing preview every 2s when a conversation is selected (in case SSE missed it)
+  useEffect(() => {
+    if (!selectedConv) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/widget/typing/get?conversationId=${selectedConv.id}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.content && data.content.length > 0) {
+          setTypingPreview(data.content);
+        }
+      } catch {}
+    }, 2000);
+    return () => clearInterval(interval);
   }, [selectedConv?.id]);
 
   // Auto-refresh conversation list every 10s to show new user messages in preview
