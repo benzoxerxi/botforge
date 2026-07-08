@@ -220,8 +220,14 @@ export default function AgentPanel() {
         if (!res.ok) return;
         const data = await res.json();
         if (data.messages) {
-          setSelectedConv(prev => prev ? { ...prev, messages: data.messages } : prev);
-          setTypingPreview(null);
+          setSelectedConv(prev => {
+            if (!prev) return prev;
+            // Only clear typing preview if new messages actually arrived (not a stale poll)
+            if (data.messages.length > prev.messages.length) {
+              setTimeout(() => setTypingPreview(null), 0);
+            }
+            return { ...prev, messages: data.messages };
+          });
         }
       } catch {}
     }, 3000);
