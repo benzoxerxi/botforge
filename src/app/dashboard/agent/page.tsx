@@ -76,6 +76,7 @@ export default function AgentPage() {
   const [agentInput, setAgentInput] = useState("");
   const [sending, setSending] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "assigned" | "active">("all");
+  const [typingPreview, setTypingPreview] = useState<string | null>(null);
   const { theme, toggle: toggleTheme } = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -144,8 +145,11 @@ export default function AgentPage() {
           return { ...prev, messages: [...prev.messages, data.message] };
         });
         setAgentInput("");
+        setTypingPreview(null);
       }
-    } catch {}
+    } catch {
+      setTypingPreview(null);
+    }
     setSending(false);
   };
 
@@ -183,6 +187,13 @@ export default function AgentPage() {
               if (existing) return prev;
               return { ...prev, messages: [...prev.messages, data.message] };
             });
+          }
+          if (data.type === "user_typing") {
+            if (data.content && data.content.length > 0) {
+              setTypingPreview(data.content);
+            } else {
+              setTypingPreview(null);
+            }
           }
         } catch {}
       };
@@ -439,6 +450,23 @@ export default function AgentPage() {
                   );
                 })}
                 <div ref={messagesEndRef} />
+
+                {/* Typing preview */}
+                {typingPreview && (
+                  <div className="flex justify-start">
+                    <div className="max-w-[75%] border border-amber-500/15 bg-amber-500/[0.04] rounded-2xl rounded-bl-md px-4 py-2.5">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <div className="w-4 h-4 rounded-full bg-amber-500/20 flex items-center justify-center">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                        </div>
+                        <span className="text-[10px] font-semibold text-amber-400/70">Customer typing...</span>
+                      </div>
+                      <p className="text-xs leading-relaxed italic text-[var(--color-muted-foreground)]" style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+                        {typingPreview}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Input */}

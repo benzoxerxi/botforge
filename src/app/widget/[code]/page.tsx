@@ -96,6 +96,20 @@ function WidgetInner({ code }: { code: string }) {
   const resolvedRef = useRef(false);
   const msgKeyCounter = useRef(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Send typing preview to agent panel (debounced 600ms)
+  const sendTypingPreview = (text: string) => {
+    if (!conversationId) return;
+    if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
+    typingTimerRef.current = setTimeout(() => {
+      fetch("/api/widget/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, content: text, companyId: config?.companyId }),
+      }).catch(() => {});
+    }, 600);
+  };
 
   const resetChat = () => {
     setMessages(config ? [{ role: "assistant", content: config.greetingMessage }] : []);
@@ -332,6 +346,14 @@ function WidgetInner({ code }: { code: string }) {
     if (!input.trim() || !config || sending) return;
     const userMsg = input.trim();
     setInput("");
+    // Clear typing preview immediately on send
+    if (conversationId) {
+      fetch("/api/widget/typing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId, content: "", companyId: config?.companyId }),
+      }).catch(() => {});
+    }
     setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
     setSending(true);
 
@@ -609,7 +631,7 @@ function WidgetInner({ code }: { code: string }) {
           <div className="flex gap-2 items-end">
             <input
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => { setInput(e.target.value); sendTypingPreview(e.target.value); }}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder={isAgentActive ? "Reply to agent..." : "Type a message..."}
               className="flex-1 px-4 py-2.5 rounded-xl text-sm bg-black/30 border border-white/10 focus:outline-none focus:border-current transition-colors placeholder:text-white/30"
