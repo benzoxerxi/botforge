@@ -485,19 +485,7 @@ function WidgetInner({ code }: { code: string }) {
             </svg>
           </button>
 
-          {/* End chat button */}
-          {!isResolved && (
-            <button
-              onClick={endChat}
-              className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-white/10 transition-all"
-              style={{ color: config.endChatButtonTextColor || (config.textColor || "#fff") + "66" }}
-              title={config.endChatButtonLabel || "End chat"}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          )}
+
         </div>
       </div>
 
@@ -623,22 +611,7 @@ function WidgetInner({ code }: { code: string }) {
 
       {/* === INPUT BAR (hidden when resolved, shown otherwise) === */}
       {!isResolved && (
-        <div className="flex-shrink-0 px-4 py-3 border-t border-white/10 space-y-2" style={{ backgroundColor: config.backgroundColor || "#08051a" }}>
-          {handoffStatus === "requested" && (
-            <button onClick={cancelHandoff}
-              className="w-full px-3 py-1.5 rounded-lg text-xs text-white/50 border border-white/10 hover:bg-white/5 transition-all"
-            >
-              Cancel handoff request
-            </button>
-          )}
-          {!handoffStatus && conversationId && (
-            <button onClick={requestHandoff} disabled={requestingHandoff}
-              className="w-full px-3 py-1.5 rounded-lg text-xs font-medium border border-dashed transition-all disabled:opacity-50"
-              style={{ borderColor: accent + "40", color: accent }}
-            >
-              {requestingHandoff ? "..." : "💬 Talk to a human"}
-            </button>
-          )}
+        <div className="flex-shrink-0 px-4 py-3 border-t border-white/10" style={{ backgroundColor: config.backgroundColor || "#08051a" }}>
           <div className="flex gap-2 items-end">
             <input
               value={input}
