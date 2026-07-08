@@ -164,9 +164,9 @@ export async function POST(request: Request) {
 
     // Check if message triggers handoff
     let handoffDetected = false;
-    if (config.bot?.handoffTrigger) {
-      const trigger = config.bot.handoffTrigger;
-      const keywords = config.bot.handoffKeywords?.split(",").map((k: string) => k.trim().toLowerCase()) || [];
+    if (config.bot?.handoffTrigger !== "disabled") { // Default auto when not configured
+      const trigger = config.bot?.handoffTrigger || "auto";
+      const keywords = config.bot?.handoffKeywords?.split(",").map((k: string) => k.trim().toLowerCase()) || [];
       const msgLower = message.toLowerCase();
 
       if (trigger === "keyword" && keywords.length > 0) {
