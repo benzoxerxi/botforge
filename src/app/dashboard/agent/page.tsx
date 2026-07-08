@@ -187,6 +187,7 @@ export default function AgentPage() {
               if (existing) return prev;
               return { ...prev, messages: [...prev.messages, data.message] };
             });
+            setTypingPreview(null);
           }
           if (data.type === "user_typing") {
             console.log('[TypingPreview] Received user_typing:', data.content ? 'content=' + data.content.substring(0,40) : 'empty/null');

@@ -219,7 +219,10 @@ export default function AgentPanel() {
         const res = await fetch(`/api/handoff/status?conversationId=${cur.id}`);
         if (!res.ok) return;
         const data = await res.json();
-        if (data.messages) setSelectedConv(prev => prev ? { ...prev, messages: data.messages } : prev);
+        if (data.messages) {
+          setSelectedConv(prev => prev ? { ...prev, messages: data.messages } : prev);
+          setTypingPreview(null);
+        }
       } catch {}
     }, 3000);
     return () => clearInterval(msgInterval);
