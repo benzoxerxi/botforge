@@ -99,14 +99,19 @@ function WidgetInner({ code }: { code: string }) {
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Send typing preview to agent panel (debounced 600ms)
-  const sendTypingPreview = (text: string) => {
-    if (!conversationId) return;
+  const sendTypingPreview = (text: string, immediateId?: string | null) => {
+    const cid = immediateId || conversationId;
+    if (!cid) {
+      return;
+    }
     if (typingTimerRef.current) clearTimeout(typingTimerRef.current);
     typingTimerRef.current = setTimeout(() => {
+      const finalCid = conversationId || cid;
+      if (!finalCid) return;
       fetch("/api/widget/typing", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ conversationId, content: text, companyId: config?.companyId }),
+        body: JSON.stringify({ conversationId: finalCid, content: text, companyId: config?.companyId }),
       }).catch(() => {});
     }, 600);
   };
@@ -380,7 +385,13 @@ function WidgetInner({ code }: { code: string }) {
         }
         setMessages((prev) => [...prev, ...newMsgs]);
       }
-      if (data.conversationId) setConversationId(data.conversationId);
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+        // If there's pending input, send it as typing preview
+        if (input.trim().length > 0) {
+          sendTypingPreview(input.trim(), data.conversationId);
+        }
+      }
     } catch {
       setMessages((prev) => [...prev, { role: "assistant", content: "Sorry, something went wrong." }]);
     }
