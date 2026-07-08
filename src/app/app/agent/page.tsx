@@ -222,7 +222,7 @@ export default function AgentPanel() {
         if (data.messages) {
           setSelectedConv(prev => {
             if (!prev) return prev;
-            // Only clear typing preview if new messages actually arrived (not a stale poll)
+            // Clear typing preview only on actual new messages (user sent)
             if (data.messages.length > prev.messages.length) {
               setTimeout(() => setTypingPreview(null), 0);
             }
@@ -249,11 +249,8 @@ export default function AgentPanel() {
         if (data.type === "user_typing") {
           if (data.content && data.content.length > 0) {
             setTypingPreview(data.content);
-            // Auto-hide after 3s of no typing event
-            if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-            typingTimeoutRef.current = setTimeout(() => {
-              setTypingPreview(null);
-            }, 3000);
+            // Auto-hide only when the user clears their input (content: "")
+            // NOT when they pause typing — preview stays until send or clear
           } else {
             setTypingPreview(null);
           }

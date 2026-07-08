@@ -194,15 +194,8 @@ export default function AgentPage() {
             console.log('[TypingPreview] Received user_typing:', data.content ? 'content=' + data.content.substring(0,40) : 'empty/null');
             if (data.content && data.content.length > 0) {
               setTypingPreview(data.content);
-              console.log('[TypingPreview] Set typingPreview to:', data.content.substring(0,40));
-              // Auto-hide after 3s of no typing event
-              if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-              typingTimeoutRef.current = setTimeout(() => {
-                setTypingPreview(null);
-              }, 3000);
             } else {
               setTypingPreview(null);
-              console.log('[TypingPreview] Cleared typingPreview');
             }
           }
         } catch {}
