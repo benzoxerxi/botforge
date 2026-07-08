@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getBotConfig, callAI } from "@/lib/ai";
 import prisma from "@/lib/prisma";
+import { clearTypingContent } from "@/lib/typing";
 
 // POST /api/chat - Send a message to the bot
 export async function POST(request: Request) {

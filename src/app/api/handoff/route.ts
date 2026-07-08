@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { pushEvent } from "@/lib/sse";
+import { clearTypingContent } from "@/lib/typing";
 import { NextResponse } from "next/server";
 
 // GET /api/handoff?companyId=X — Get active/pending handoff conversations
@@ -180,6 +181,9 @@ export async function POST(request: Request) {
           status: "handoff_active",
         },
       });
+
+      // Clear any pending typing preview (agent replied)
+      clearTypingContent(conversationId);
 
       // Push new message via SSE — instant delivery to widget
       pushEvent(conversationId, {
