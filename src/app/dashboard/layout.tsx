@@ -18,6 +18,7 @@ import {
   BarChart3,
   Activity,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: Activity },
@@ -129,6 +130,7 @@ export default function DashboardLayout({
 
   return (
     <ErrorBoundary>
+
       <div className="min-h-screen bg-[#000000] text-white">
         {/* ── NEW Top Navigation ── */}
         <nav className="sticky top-0 z-50 bg-[#000000]/80 backdrop-blur-xl border-b border-white/5">
@@ -178,6 +180,7 @@ export default function DashboardLayout({
 
               {/* Right: User info + theme toggle + logout */}
               <div className="flex items-center gap-2">
+                <ThemeToggle />
                 <button
                   onClick={() => signOut()}
                   className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"

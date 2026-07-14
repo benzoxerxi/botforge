@@ -15,19 +15,22 @@ const ThemeContext = createContext<{
 export const useTheme = () => useContext(ThemeContext);
 
 export default function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    // Load from localStorage
+    // Load from localStorage, default to dark
     const stored = localStorage.getItem("botforge-theme") as Theme | null;
     if (stored === "light" || stored === "dark") {
       setTheme(stored);
+    } else {
+      // First visit — default dark, save it
+      localStorage.setItem("botforge-theme", "dark");
+      document.documentElement.setAttribute("data-theme", "dark");
     }
   }, []);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("botforge-theme", theme);
   }, [theme]);
 
   const toggle = () => setTheme((t) => (t === "light" ? "dark" : "light"));
