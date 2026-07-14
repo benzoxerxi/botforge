@@ -207,6 +207,137 @@ export async function GET(request: Request) {
     });
   }
 
+  // ====== 🧠 Bot Performance Analytics =====
+  // Count user messages with bot responses (within 30 days)
+  let botHandledQuestions = 0;
+  let botFailedQuestions = 0;
+  let topFailedQuestions: Array<{ question: string; count: number }> = [];
+  let knowledgeGaps: Array<{ topic: string; count: number }> = [];
+
+  try {
+    // Count user messages where bot (assistant) replied — "handled"
+    const handledRes: any = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(DISTINCT m."id") as cnt
+      FROM "Message" m
+      JOIN "Conversation" c ON c.id = m."conversationId"
+      WHERE m.role = 'user'
+        AND c."companyId" = $1
+        AND c."createdAt" >= $2
+        AND EXISTS (
+          SELECT 1 FROM "Message" m2
+          WHERE m2."conversationId" = m."conversationId"
+            AND m2.role = 'assistant'
+            AND m2."createdAt" > m."createdAt"
+        )
+    `, companyId, thirtyDaysAgo);
+    botHandledQuestions = Number(handledRes?.[0]?.cnt) || 0;
+
+    // Count user messages from conversations that triggered handoff = "failed"
+    const failedRes: any = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(DISTINCT m."id") as cnt
+      FROM "Message" m
+      JOIN "Conversation" c ON c.id = m."conversationId"
+      WHERE m.role = 'user'
+        AND c."companyId" = $1
+        AND c."createdAt" >= $2
+        AND (
+          c.status IN ('handoff_requested', 'handoff_active')
+          OR EXISTS (
+            SELECT 1 FROM "Message" m3
+            WHERE m3."conversationId" = c.id
+              AND m3.role = 'system'
+              AND m3.content LIKE '%handoff%'
+          )
+        )
+    `, companyId, thirtyDaysAgo);
+    botFailedQuestions = Number(failedRes?.[0]?.cnt) || 0;
+
+    // Top Failed Questions — first user message from handoff conversations, grouped by content
+    const topFailedRes: any = await prisma.$queryRawUnsafe(`
+      SELECT q."content" as question, COUNT(*)::int as cnt
+      FROM (
+        SELECT DISTINCT ON (m."conversationId")
+          m."conversationId",
+          LEFT(m."content", 120) as "content"
+        FROM "Message" m
+        JOIN "Conversation" c ON c.id = m."conversationId"
+        WHERE m.role = 'user'
+          AND c."companyId" = $1
+          AND c."createdAt" >= $2
+          AND (
+            c.status IN ('handoff_requested', 'handoff_active')
+            OR EXISTS (
+              SELECT 1 FROM "Message" m3
+              WHERE m3."conversationId" = c.id
+                AND m3.role = 'system'
+                AND m3.content LIKE '%handoff%'
+            )
+          )
+        ORDER BY m."conversationId", m."createdAt" ASC
+      ) q
+      GROUP BY q."content"
+      ORDER BY cnt DESC
+      LIMIT 10
+    `, companyId, thirtyDaysAgo);
+    if (topFailedRes && Array.isArray(topFailedRes)) {
+      topFailedQuestions = topFailedRes.map((r: any) => ({
+        question: r.question || "",
+        count: Number(r.cnt) || 0,
+      })).filter((r: any) => r.question);
+    }
+
+    // Knowledge Gaps — same failed questions but grouped by topic (first 3-4 words)
+    const gapRes: any = await prisma.$queryRawUnsafe(`
+      SELECT q."topic" as topic, COUNT(*)::int as cnt
+      FROM (
+        SELECT DISTINCT ON (m."conversationId")
+          m."conversationId",
+          LEFT(REGEXP_REPLACE(
+            LOWER(REGEXP_REPLACE(m."content", '[^a-zA-Zა-ჰ0-9\\s]', '', 'g')),
+            '^(hi|hello|hey|გამარჯობა|გასალმება|help|დახმარება|question|შეკითხვა|i need|მინდა|can you|შეგიძლია|how|როგორ|what|რა|where|სად|when|როდის|why|რატომ)\\s+',
+            '',
+            'g'
+          ), 60) as "topic"
+        FROM "Message" m
+        JOIN "Conversation" c ON c.id = m."conversationId"
+        WHERE m.role = 'user'
+          AND c."companyId" = $1
+          AND c."createdAt" >= $2
+          AND m."content" != ''
+          AND (
+            c.status IN ('handoff_requested', 'handoff_active')
+            OR EXISTS (
+              SELECT 1 FROM "Message" m3
+              WHERE m3."conversationId" = c.id
+                AND m3.role = 'system'
+                AND m3.content LIKE '%handoff%'
+            )
+          )
+        ORDER BY m."conversationId", m."createdAt" ASC
+      ) q
+      WHERE q."topic" != ''
+      GROUP BY q."topic"
+      ORDER BY cnt DESC
+      LIMIT 8
+    `, companyId, thirtyDaysAgo);
+    if (gapRes && Array.isArray(gapRes)) {
+      knowledgeGaps = gapRes.map((r: any) => ({
+        topic: r.topic || "",
+        count: Number(r.cnt) || 0,
+      })).filter((r: any) => r.topic);
+    }
+  } catch (e) {
+    console.error("Bot performance queries failed:", e);
+  }
+
+  // Bot Quality Score — composite (0-100)
+  const ratingScore = averageRating * 20; // 5*20 = 100 max
+  const resolutionScore = botResolutionRate; // 0-100
+  const handoffScore = totalConvs > 0
+    ? Math.round((1 - uniqueTransferredConvs / totalConvs) * 100)
+    : 100;
+  const qualityScore = Math.round((ratingScore * 0.2) + (resolutionScore * 0.4) + (handoffScore * 0.4));
+
   return NextResponse.json({
     company: {
       tokensUsed: company?.tokensUsed || 0,
@@ -251,6 +382,22 @@ export async function GET(request: Request) {
       average: averageRating,
       count: ratingCount,
       distribution: ratingDistribution,
+    },
+    // Bot Performance
+    botPerformance: {
+      totalQuestions: botHandledQuestions + botFailedQuestions,
+      handledByBot: botHandledQuestions,
+      failed: botFailedQuestions,
+      successRate: (botHandledQuestions + botFailedQuestions) > 0
+        ? Math.round((botHandledQuestions / (botHandledQuestions + botFailedQuestions)) * 100)
+        : 0,
+    },
+    topFailedQuestions,
+    knowledgeGaps,
+    qualityScore: {
+      score: qualityScore,
+      label: qualityScore >= 80 ? "Excellent" : qualityScore >= 60 ? "Good" : qualityScore >= 40 ? "Fair" : "Needs Improvement",
+      color: qualityScore >= 80 ? "#22c55e" : qualityScore >= 60 ? "#f59e0b" : "#ef4444",
     },
   });
 }

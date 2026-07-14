@@ -21,6 +21,10 @@ import {
   Star,
   Timer,
   RefreshCw,
+  BrainCircuit,
+  HelpCircle,
+  Lightbulb,
+  ThumbsUp,
 } from "lucide-react";
 import ManageCompanyModal from "./ManageCompanyModal";
 
@@ -35,6 +39,10 @@ interface Analytics {
   botResolution: { rate: number; resolvedByBot: number; totalClosed: number };
   transferRate: { rate: number; transferred: number; total: number };
   ratings: { average: number; count: number; distribution: Record<number, number> };
+  botPerformance: { totalQuestions: number; handledByBot: number; failed: number; successRate: number };
+  topFailedQuestions: Array<{ question: string; count: number }>;
+  knowledgeGaps: Array<{ topic: string; count: number }>;
+  qualityScore: { score: number; label: string; color: string };
 }
 
 export default function DashboardPage() {
@@ -376,6 +384,186 @@ function CompanyAnalytics({ analytics, router, isSuperAdmin }: { analytics: Anal
               Agent Panel
               <ArrowRight className="w-3 h-3" />
             </a>
+          </div>
+        </div>
+      </div>
+
+      {/* === Bot Performance & Quality === */}
+      <div className="pt-4">
+        <div className="inline-flex items-center gap-1.5 mb-4 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-[var(--color-border)] text-[var(--color-accent)] bg-[var(--color-accent)]/5">
+          <BrainCircuit className="w-3 h-3" />
+          Bot Performance & Quality
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          {/* Quality Score */}
+          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+            <div className="flex items-center gap-2 mb-3">
+              <ThumbsUp className="w-4 h-4" style={{ color: a.qualityScore.color }} />
+              <h3 className="text-sm font-semibold">Bot Quality Score</h3>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative w-20 h-20">
+                <svg className="w-20 h-20 -rotate-90" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6" />
+                  <circle cx="40" cy="40" r="34" fill="none" stroke={a.qualityScore.color} strokeWidth="6"
+                    strokeDasharray={`${(a.qualityScore.score / 100) * 213.6} 213.6`}
+                    strokeLinecap="round" />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xl font-bold" style={{ color: a.qualityScore.color }}>{a.qualityScore.score}</span>
+                </div>
+              </div>
+              <div>
+                <div className="text-base font-semibold" style={{ color: a.qualityScore.color }}>{a.qualityScore.label}</div>
+                <div className="text-[10px] text-[var(--color-muted-foreground)] mt-1">
+                  Based on ratings + resolution + handoff rate
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bot Questions Stats */}
+          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+            <div className="flex items-center gap-2 mb-3">
+              <HelpCircle className="w-4 h-4 text-[var(--color-accent)]" />
+              <h3 className="text-sm font-semibold">Bot Questions</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div>
+                <div className="text-lg font-bold">{a.botPerformance.totalQuestions}</div>
+                <div className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">Total</div>
+              </div>
+              <div>
+                <div className="text-lg font-bold text-green-400">{a.botPerformance.handledByBot}</div>
+                <div className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">Answered</div>
+              </div>
+              <div>
+                <div className="text-lg font-bold text-red-400">{a.botPerformance.failed}</div>
+                <div className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">Failed</div>
+              </div>
+            </div>
+            {/* Success rate bar */}
+            <div className="mt-3 pt-3 border-t border-[var(--color-border)]">
+              <div className="flex justify-between text-[10px] text-[var(--color-muted-foreground)] mb-1.5">
+                <span>Success Rate</span>
+                <span className="font-semibold" style={{ color: a.botPerformance.successRate >= 60 ? '#22c55e' : '#ef4444' }}>
+                  {a.botPerformance.successRate}%
+                </span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-[var(--color-muted)] overflow-hidden">
+                <div className="h-full rounded-full transition-all bg-gradient-to-r from-green-500 to-emerald-400"
+                  style={{ width: `${a.botPerformance.successRate}%` }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Transfer vs Resolve */}
+          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+            <div className="flex items-center gap-2 mb-3">
+              <RefreshCw className="w-4 h-4 text-[var(--color-accent)]" />
+              <h3 className="text-sm font-semibold">Transfer vs Resolve</h3>
+            </div>
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between text-[10px] text-[var(--color-muted-foreground)] mb-1">
+                  <span>Bot Resolution</span>
+                  <span className="font-semibold text-green-400">{a.botResolution.rate}%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-[var(--color-muted)] overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-green-500 to-emerald-400"
+                    style={{ width: `${a.botResolution.rate}%` }} />
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between text-[10px] text-[var(--color-muted-foreground)] mb-1">
+                  <span>Transfer to Agent</span>
+                  <span className="font-semibold text-purple-400">{a.transferRate.rate}%</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-[var(--color-muted)] overflow-hidden">
+                  <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-violet-400"
+                    style={{ width: `${a.transferRate.rate}%` }} />
+                </div>
+              </div>
+              <div className="pt-2 text-[10px] text-[var(--color-muted-foreground)]">
+                {a.botResolution.resolvedByBot} closed by bot · {a.transferRate.transferred} transferred
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Top Failed Questions + Knowledge Gaps */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Top Failed Questions */}
+          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+            <div className="flex items-center gap-2 mb-4">
+              <HelpCircle className="w-4 h-4 text-red-400" />
+              <h3 className="text-sm font-semibold">Top Failed Questions</h3>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-400">
+                {a.topFailedQuestions.length}
+              </span>
+            </div>
+            {a.topFailedQuestions.length > 0 ? (
+              <div className="space-y-1.5">
+                {a.topFailedQuestions.map((q, i) => (
+                  <div key={i}
+                    className="flex items-start gap-2 p-2.5 rounded-lg bg-[var(--color-muted)]/30 hover:bg-[var(--color-muted)]/50 transition-colors">
+                    <span className="text-[10px] font-bold text-red-400 w-4 shrink-0 mt-0.5">#{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-[var(--color-foreground)] truncate">{q.question}</p>
+                      <p className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">
+                        {q.count} time{q.count > 1 ? 's' : ''} led to handoff
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-semibold text-red-400 shrink-0">{q.count}x</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-xs text-[var(--color-muted-foreground)]">
+                No handoff data yet — all clear!
+              </div>
+            )}
+          </div>
+
+          {/* Knowledge Gaps */}
+          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+            <div className="flex items-center gap-2 mb-4">
+              <Lightbulb className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold">Suggested KB Improvements</h3>
+              <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400">
+                {a.knowledgeGaps.length}
+              </span>
+            </div>
+            {a.knowledgeGaps.length > 0 ? (
+              <div className="space-y-1.5">
+                {a.knowledgeGaps.map((gap, i) => (
+                  <div key={i}
+                    className="flex items-start gap-2 p-2.5 rounded-lg bg-[var(--color-muted)]/30 hover:bg-[var(--color-muted)]/50 transition-colors">
+                    <span className="text-[10px] font-bold text-amber-400 w-4 shrink-0 mt-0.5">{i + 1}.</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[11px] text-[var(--color-foreground)] capitalize truncate">{gap.topic}</p>
+                      <p className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">
+                        {gap.count} conversation{gap.count > 1 ? 's' : ''} requested human help
+                      </p>
+                    </div>
+                    <span className="text-[10px] font-semibold text-amber-400 shrink-0">{gap.count}x</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 text-xs text-[var(--color-muted-foreground)]">
+                No common failure patterns — KB seems solid!
+              </div>
+            )}
+            {a.knowledge.entries > 0 && (
+              <div className="mt-3 pt-3 border-t border-[var(--color-border)] flex items-center justify-between text-[10px] text-[var(--color-muted-foreground)]">
+                <span>Current KB: {a.knowledge.entries} sources</span>
+                <a href="/dashboard/company" className="text-[var(--color-accent)] hover:underline">
+                  Manage KB →
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>
