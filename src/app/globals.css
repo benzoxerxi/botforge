@@ -268,8 +268,7 @@ html.lenis, html.lenis body {
 
 /* ── Navbar ── */
 [data-theme="light"] .bg-black\/80 {
-  background-color: rgba(255, 255, 255, 0.95) !important;
-  border-bottom: 1px solid #D1D5DB !important;
+  background-color: #FFFFFF !important;
 }
 [data-theme="light"] .bg-black\/60 {
   background-color: rgba(0, 0, 0, 0.15) !important;
@@ -340,13 +339,41 @@ html.lenis, html.lenis body {
 
 /* ── Nav: inactive link contrast ── */
 [data-theme="light"] nav .text-white\/50 {
-  color: #4B5563 !important;
+  color: #374151 !important;
 }
 [data-theme="light"] nav .hover\:text-white\/80:hover {
   color: #111827 !important;
 }
 [data-theme="light"] nav .hover\:bg-white\/5:hover {
   background-color: #F3F4F6 !important;
+}
+
+/* ── Nav backdrop ── */
+[data-theme="light"] nav.sticky {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* ── Nav badge ("Admin" / "Dashboard") ── */
+[data-theme="light"] nav .bg-white\/5 {
+  background-color: #F3F4F6 !important;
+}
+[data-theme="light"] nav .text-white\/40 {
+  color: #9CA3AF !important;
+}
+[data-theme="light"] nav .border-white\/10 {
+  border-color: #E5E7EB !important;
+}
+
+/* ── Nav avatar circle ── */
+[data-theme="light"] nav .from-violet-500\/20 {
+  --tw-gradient-from: rgb(99 102 241 / 0.2) !important;
+}
+[data-theme="light"] nav .to-indigo-600\/20 {
+  --tw-gradient-to: rgb(79 70 229 / 0.2) !important;
+}
+[data-theme="light"] nav .text-white\/70 {
+  color: #374151 !important;
 }
 
 /* ── Active Now gradient card: deep indigo text ── */
