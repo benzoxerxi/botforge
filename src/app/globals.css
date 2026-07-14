@@ -260,15 +260,16 @@ html.lenis, html.lenis body {
 
 /* ── Page Background ── */
 [data-theme="light"] .bg-\[\#000000\] {
-  background-color: #F8F9FA !important;
+  background-color: #F9FAFB !important;
 }
 [data-theme="light"] .bg-black {
-  background-color: #F8F9FA !important;
+  background-color: #F9FAFB !important;
 }
 
 /* ── Navbar ── */
 [data-theme="light"] .bg-black\/80 {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid #D1D5DB !important;
 }
 [data-theme="light"] .bg-black\/60 {
   background-color: rgba(0, 0, 0, 0.15) !important;
@@ -287,7 +288,7 @@ html.lenis, html.lenis body {
 /* ── Cards: white + subtle shadow + thin border ── */
 [data-theme="light"] .bg-white\/\[0\.02\] {
   background-color: #FFFFFF !important;
-  border-color: #E5E7EB !important;
+  border-color: rgba(0,0,0,0.05) !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.03) !important;
 }
 
@@ -312,10 +313,10 @@ html.lenis, html.lenis body {
   color: #111827 !important;
 }
 [data-theme="light"] .text-white\/90 {
-  color: #1F2937 !important;
+  color: #111827 !important;
 }
 [data-theme="light"] .text-white\/80 {
-  color: #374151 !important;
+  color: #1F2937 !important;
 }
 
 /* ── Secondary / Body text ── */
@@ -328,13 +329,38 @@ html.lenis, html.lenis body {
   color: #9CA3AF !important;
 }
 [data-theme="light"] .text-white\/50 {
-  color: #9CA3AF !important;
+  color: #4B5563 !important;
 }
 [data-theme="light"] .text-white\/40 {
-  color: #9CA3AF !important;
+  color: #6B7280 !important;
 }
 [data-theme="light"] .text-white\/30 {
-  color: #D1D5DB !important;
+  color: #111827 !important;
+}
+
+/* ── Nav: inactive link contrast ── */
+[data-theme="light"] nav .text-white\/50 {
+  color: #4B5563 !important;
+}
+[data-theme="light"] nav .hover\:text-white\/80:hover {
+  color: #111827 !important;
+}
+[data-theme="light"] nav .hover\:bg-white\/5:hover {
+  background-color: #F3F4F6 !important;
+}
+
+/* ── Active Now gradient card: deep indigo text ── */
+[data-theme="light"] .from-violet-500\/20 .text-white\/40,
+[data-theme="light"] .from-violet-500\/20 .text-white\/30 {
+  color: #312E81 !important;
+}
+[data-theme="light"] .from-violet-500\/20 {
+  border-color: #C7D2FE !important;
+}
+
+/* ── Messages card: ensure count inherits proper dark text ── */
+[data-theme="light"] .bg-white\/\[0\.02\] .text-white\/30 {
+  color: #111827 !important;
 }
 
 /* ── Accent: refined indigo #6366F1 ── */
@@ -516,7 +542,7 @@ html.lenis, html.lenis body {
 
 /* ── Scrollbar ── */
 [data-theme="light"] ::-webkit-scrollbar-track {
-  background: #F8F9FA !important;
+  background: #F9FAFB !important;
 }
 [data-theme="light"] ::-webkit-scrollbar-thumb {
   background: #E5E7EB !important;
