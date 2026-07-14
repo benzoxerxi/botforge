@@ -338,6 +338,114 @@ export async function GET(request: Request) {
     : 100;
   const qualityScore = Math.round((ratingScore * 0.2) + (resolutionScore * 0.4) + (handoffScore * 0.4));
 
+  // ====== 🔥 Activity Heatmap (last 7 days, by hour × day) =====
+  let activityHeatmap: Array<{ day: number; hour: number; count: number }> = [];
+  try {
+    const heatmapRes: any = await prisma.$queryRawUnsafe(`
+      SELECT
+        EXTRACT(DOW FROM c."createdAt")::int as day,
+        EXTRACT(HOUR FROM c."createdAt")::int as hour,
+        COUNT(*)::int as count
+      FROM "Conversation" c
+      WHERE c."companyId" = $1
+        AND c."createdAt" >= $2
+      GROUP BY day, hour
+      ORDER BY day, hour
+    `, companyId, sevenDaysAgo);
+    if (heatmapRes && Array.isArray(heatmapRes)) {
+      activityHeatmap = heatmapRes.map((r: any) => ({
+        day: Number(r.day) || 0,
+        hour: Number(r.hour) || 0,
+        count: Number(r.count) || 0,
+      }));
+    }
+  } catch (e) {
+    console.error("Heatmap query failed:", e);
+  }
+
+  // ====== 🔥 Conversation Trend (% change vs previous period) =====
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  let conversationTrend = 0;
+  try {
+    const trendRes: any = await prisma.$queryRawUnsafe(`
+      SELECT
+        COALESCE(SUM(CASE WHEN c."createdAt" >= $1 THEN 1 ELSE 0 END), 0)::int as current,
+        COALESCE(SUM(CASE WHEN c."createdAt" >= $2 AND c."createdAt" < $1 THEN 1 ELSE 0 END), 0)::int as previous
+      FROM "Conversation" c
+      WHERE c."companyId" = $3
+        AND c."createdAt" >= $2
+    `, sevenDaysAgo, fourteenDaysAgo, companyId);
+    if (trendRes && Array.isArray(trendRes) && trendRes[0]) {
+      const current = Number(trendRes[0].current) || 0;
+      const previous = Number(trendRes[0].previous) || 0;
+      conversationTrend = previous > 0
+        ? Math.round(((current - previous) / previous) * 100)
+        : current > 0 ? 100 : 0;
+    }
+  } catch (e) {
+    console.error("Trend query failed:", e);
+  }
+
+  // ====== 🔥 Recent Conversations (last 5) =====
+  let recentConversations: Array<{
+    id: string;
+    userName: string;
+    status: string;
+    lastActivity: string;
+    duration: string;
+    botMessages: number;
+    agentMessages: number;
+  }> = [];
+  try {
+    const recentRes: any = await prisma.$queryRawUnsafe(`
+      SELECT
+        c.id,
+        COALESCE(c."userName", 'Anonymous') as "userName",
+        c.status,
+        c."updatedAt" as "lastActivity",
+        c."createdAt",
+        COALESCE(bot.cnt, 0)::int as "botMessages",
+        COALESCE(agent.cnt, 0)::int as "agentMessages"
+      FROM "Conversation" c
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*)::int as cnt FROM "Message" m
+        WHERE m."conversationId" = c.id AND m.role = 'assistant'
+      ) bot ON true
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*)::int as cnt FROM "Message" m
+        WHERE m."conversationId" = c.id AND m.role = 'agent'
+      ) agent ON true
+      WHERE c."companyId" = $1
+      ORDER BY c."updatedAt" DESC
+      LIMIT 5
+    `, companyId);
+    if (recentRes && Array.isArray(recentRes)) {
+      recentConversations = recentRes.map((r: any) => {
+        const lastActivity = new Date(r.lastActivity);
+        const now = new Date();
+        const diffMs = now.getTime() - lastActivity.getTime();
+        const diffSec = Math.floor(diffMs / 1000);
+        let duration = "just now";
+        if (diffSec >= 86400) duration = `${Math.floor(diffSec / 86400)}d ago`;
+        else if (diffSec >= 3600) duration = `${Math.floor(diffSec / 3600)}h ago`;
+        else if (diffSec >= 60) duration = `${Math.floor(diffSec / 60)}m ago`;
+        else if (diffSec > 0) duration = `${diffSec}s ago`;
+
+        return {
+          id: r.id || "",
+          userName: r.userName || "Anonymous",
+          status: r.status || "active",
+          lastActivity: lastActivity.toISOString(),
+          duration,
+          botMessages: Number(r.botMessages) || 0,
+          agentMessages: Number(r.agentMessages) || 0,
+        };
+      });
+    }
+  } catch (e) {
+    console.error("Recent conversations query failed:", e);
+  }
+
   return NextResponse.json({
     company: {
       tokensUsed: company?.tokensUsed || 0,
@@ -399,5 +507,11 @@ export async function GET(request: Request) {
       label: qualityScore >= 80 ? "Excellent" : qualityScore >= 60 ? "Good" : qualityScore >= 40 ? "Fair" : "Needs Improvement",
       color: qualityScore >= 80 ? "#22c55e" : qualityScore >= 60 ? "#f59e0b" : "#ef4444",
     },
+    // === New: Activity Heatmap ===
+    activityHeatmap,
+    // === New: Conversation Trend ===
+    conversationTrend,
+    // === New: Recent Conversations ===
+    recentConversations,
   });
 }
