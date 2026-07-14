@@ -75,7 +75,7 @@ export default function AnalyticsPage() {
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[300px]">
-        <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -100,18 +100,18 @@ export default function AnalyticsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-[var(--color-border)] text-[var(--color-accent)] bg-[var(--color-accent)]/5">
+            <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-white/5 text-violet-400 bg-violet-500/5">
               <BarChart3 className="w-3 h-3" />
               Analytics
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Dashboard Analytics</h1>
-            <p className="text-xs text-[var(--color-muted-foreground)] mt-0.5">
+            <h1 className="text-xl font-bold tracking-tight text-white">Dashboard Analytics</h1>
+            <p className="text-xs text-white/40 mt-0.5">
               Real-time stats and trends
             </p>
           </div>
           <button
             onClick={fetchAnalytics}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh
@@ -120,59 +120,59 @@ export default function AnalyticsPage() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)]">Total Conversations</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/40">Total Conversations</div>
               <div className="p-1.5 rounded-lg bg-blue-500/10">
                 <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
               </div>
             </div>
-            <div className="text-2xl font-bold">{data.conversations.total.toLocaleString()}</div>
-            <div className="flex items-center gap-2 mt-1 text-[10px] text-[var(--color-muted-foreground)]">
+            <div className="text-2xl font-bold text-white">{data.conversations.total.toLocaleString()}</div>
+            <div className="flex items-center gap-2 mt-1 text-[10px] text-white/40">
               <span className="text-green-400">{data.conversations.recent7Days} this week</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)]">Active Chats</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/40">Active Chats</div>
               <div className="p-1.5 rounded-lg bg-green-500/10">
                 <Activity className="w-3.5 h-3.5 text-green-400" />
               </div>
             </div>
-            <div className="text-2xl font-bold">{data.conversations.active}</div>
-            <div className="flex items-center gap-2 mt-1 text-[10px] text-[var(--color-muted-foreground)]">
+            <div className="text-2xl font-bold text-white">{data.conversations.active}</div>
+            <div className="flex items-center gap-2 mt-1 text-[10px] text-white/40">
               <span className="text-amber-400">{data.conversations.handoff} in handoff</span>
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)]">Total Messages</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/40">Total Messages</div>
               <div className="p-1.5 rounded-lg bg-purple-500/10">
                 <MessageSquare className="w-3.5 h-3.5 text-purple-400" />
               </div>
             </div>
-            <div className="text-2xl font-bold">{data.messages.toLocaleString()}</div>
-            <div className="flex items-center gap-2 mt-1 text-[10px] text-[var(--color-muted-foreground)]">
+            <div className="text-2xl font-bold text-white">{data.messages.toLocaleString()}</div>
+            <div className="flex items-center gap-2 mt-1 text-[10px] text-white/40">
               Across all conversations
             </div>
           </div>
 
-          <div className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)]">Token Usage</div>
+              <div className="text-[10px] uppercase tracking-wider text-white/40">Token Usage</div>
               <div className="p-1.5 rounded-lg bg-amber-500/10">
                 <Database className="w-3.5 h-3.5 text-amber-400" />
               </div>
             </div>
-            <div className="text-2xl font-bold">{tokenUsagePercent}%</div>
-            <div className="flex items-center gap-2 mt-1 text-[10px] text-[var(--color-muted-foreground)]">
+            <div className="text-2xl font-bold text-white">{tokenUsagePercent}%</div>
+            <div className="flex items-center gap-2 mt-1 text-[10px] text-white/40">
               <span>{data.company.tokensUsed.toLocaleString()} / {data.company.tokenLimit.toLocaleString()}</span>
             </div>
-            <div className="mt-2 w-full h-1.5 rounded-full bg-[var(--color-muted)] overflow-hidden">
+            <div className="mt-2 w-full h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-primary)] transition-all"
+                className="h-full rounded-full bg-gradient-to-r from-violet-400 to-indigo-500 transition-all"
                 style={{ width: `${Math.min(tokenUsagePercent, 100)}%` }}
               />
             </div>
@@ -181,10 +181,10 @@ export default function AnalyticsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Daily Token Usage Chart */}
-          <div className="lg:col-span-2 p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="lg:col-span-2 rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-4 h-4 text-[var(--color-accent)]" />
-              <h3 className="text-sm font-semibold">Daily Token Usage (7 days)</h3>
+              <TrendingUp className="w-4 h-4 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">Daily Token Usage (7 days)</h3>
             </div>
             <div className="h-64">
               {dailyData.length > 0 ? (
@@ -202,7 +202,7 @@ export default function AnalyticsPage() {
                     />
                     <Tooltip
                       contentStyle={{
-                        background: "rgba(10,14,26,0.95)",
+                        background: "rgba(0,0,0,0.95)",
                         border: "1px solid rgba(255,255,255,0.1)",
                         borderRadius: "12px",
                         fontSize: "12px",
@@ -219,7 +219,7 @@ export default function AnalyticsPage() {
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-full text-xs text-[var(--color-muted-foreground)]">
+                <div className="flex items-center justify-center h-full text-xs text-white/40">
                   No token data available yet
                 </div>
               )}
@@ -227,10 +227,10 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Conversation Status Pie */}
-          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <MessageSquare className="w-4 h-4 text-[var(--color-accent)]" />
-              <h3 className="text-sm font-semibold">Conversation Status</h3>
+              <MessageSquare className="w-4 h-4 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">Conversation Status</h3>
             </div>
             <div className="h-64 flex items-center justify-center">
               {conversationPie.length > 0 ? (
@@ -251,7 +251,7 @@ export default function AnalyticsPage() {
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        background: "rgba(10,14,26,0.95)",
+                        background: "rgba(0,0,0,0.95)",
                         border: "1px solid rgba(255,255,255,0.1)",
                         borderRadius: "12px",
                         fontSize: "12px",
@@ -260,7 +260,7 @@ export default function AnalyticsPage() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="text-xs text-[var(--color-muted-foreground)]">No data</div>
+                <div className="text-xs text-white/40">No data</div>
               )}
             </div>
             {/* Legend */}
@@ -271,7 +271,7 @@ export default function AnalyticsPage() {
                     className="w-2.5 h-2.5 rounded-full"
                     style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }}
                   />
-                  <span className="text-[10px] text-[var(--color-muted-foreground)]">
+                  <span className="text-[10px] text-white/40">
                     {entry.name}: {entry.value}
                   </span>
                 </div>
@@ -282,36 +282,36 @@ export default function AnalyticsPage() {
 
         {/* Knowledge Base Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Database className="w-4 h-4 text-[var(--color-accent)]" />
-              <h3 className="text-sm font-semibold">Knowledge Base</h3>
+              <Database className="w-4 h-4 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">Knowledge Base</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Documents</div>
-                <div className="text-xl font-bold">{data.knowledge.entries}</div>
+                <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">Documents</div>
+                <div className="text-xl font-bold text-white">{data.knowledge.entries}</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Chunks</div>
-                <div className="text-xl font-bold">{data.knowledge.chunks.toLocaleString()}</div>
+                <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">Chunks</div>
+                <div className="text-xl font-bold text-white">{data.knowledge.chunks.toLocaleString()}</div>
               </div>
             </div>
           </div>
 
-          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Bot className="w-4 h-4 text-[var(--color-accent)]" />
-              <h3 className="text-sm font-semibold">Usage Overview</h3>
+              <Bot className="w-4 h-4 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">Usage Overview</h3>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Total Tokens</div>
-                <div className="text-xl font-bold">{data.tokens.total.toLocaleString()}</div>
+                <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">Total Tokens</div>
+                <div className="text-xl font-bold text-white">{data.tokens.total.toLocaleString()}</div>
               </div>
               <div>
-                <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Avg per Conv</div>
-                <div className="text-xl font-bold">
+                <div className="text-[10px] uppercase tracking-wider text-white/40 mb-1">Avg per Conv</div>
+                <div className="text-xl font-bold text-white">
                   {data.conversations.total > 0
                     ? Math.round(data.tokens.total / data.conversations.total).toLocaleString()
                     : 0}

@@ -8,14 +8,12 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import {
   MessageSquare,
   Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
   Clock,
   Bot,
   User,
-  Star,
 } from "lucide-react";
 
 interface Conversation {
@@ -123,57 +121,57 @@ export default function HistoryPage() {
           <div className="flex items-center gap-3">
             <button
               onClick={closeConv}
-              className="p-2 rounded-lg hover:bg-[var(--color-muted)]/50 transition-all text-[var(--color-muted-foreground)]"
+              className="p-2 rounded-lg hover:bg-white/5 transition-all text-white/40"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <div>
-              <h2 className="text-lg font-semibold">Conversation Details</h2>
-              <p className="text-xs text-[var(--color-muted-foreground)]">
+              <h2 className="text-lg font-semibold text-white">Conversation Details</h2>
+              <p className="text-xs text-white/40">
                 {selectedConv.customerEmail || selectedConv.customerName || "Anonymous"} · {selectedConv.bot?.name}
               </p>
             </div>
           </div>
 
           {/* Conversation details card */}
-          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-5">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
-                <div className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wider">Status</div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Status</div>
                 <div className="mt-1">{statusBadge(selectedConv.status)}</div>
               </div>
               <div>
-                <div className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wider">Channel</div>
-                <div className="mt-1 text-xs font-medium capitalize">{selectedConv.channel}</div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Channel</div>
+                <div className="mt-1 text-xs font-medium text-white/70 capitalize">{selectedConv.channel}</div>
               </div>
               <div>
-                <div className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wider">Messages</div>
-                <div className="mt-1 text-xs font-medium">{selectedConv._count?.messages || convMessages.length}</div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Messages</div>
+                <div className="mt-1 text-xs font-medium text-white/70">{selectedConv._count?.messages || convMessages.length}</div>
               </div>
               <div>
-                <div className="text-[10px] text-[var(--color-muted-foreground)] uppercase tracking-wider">Tokens</div>
-                <div className="mt-1 text-xs font-medium">{selectedConv.tokenCost.toLocaleString()}</div>
+                <div className="text-[10px] text-white/30 uppercase tracking-wider">Tokens</div>
+                <div className="mt-1 text-xs font-medium text-white/70">{selectedConv.tokenCost.toLocaleString()}</div>
               </div>
             </div>
-            <div className="text-[10px] text-[var(--color-muted-foreground)] flex items-center gap-1">
+            <div className="text-[10px] text-white/40 flex items-center gap-1">
               <Clock className="w-3 h-3" />
               Created {new Date(selectedConv.createdAt).toLocaleString()}
             </div>
           </div>
 
           {/* Messages */}
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] overflow-hidden">
-            <div className="px-5 py-3 border-b border-[var(--color-border)] flex items-center gap-2">
-              <MessageSquare className="w-4 h-4 text-[var(--color-muted-foreground)]" />
-              <span className="text-sm font-semibold">Messages</span>
+          <div className="rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden">
+            <div className="px-5 py-3 border-b border-white/5 flex items-center gap-2">
+              <MessageSquare className="w-4 h-4 text-white/40" />
+              <span className="text-sm font-semibold text-white">Messages</span>
             </div>
             <div className="p-4 space-y-3 max-h-[500px] overflow-y-auto">
               {convLoading ? (
                 <div className="flex justify-center py-8">
-                  <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : convMessages.length === 0 ? (
-                <p className="text-sm text-[var(--color-muted-foreground)] text-center py-8">No messages</p>
+                <p className="text-sm text-white/40 text-center py-8">No messages</p>
               ) : (
                 convMessages.map((msg: any) => {
                   const isAssistant = msg.role === "assistant" || msg.role === "agent";
@@ -181,7 +179,7 @@ export default function HistoryPage() {
                   if (isSystem) {
                     return (
                       <div key={msg.id} className="flex justify-center">
-                        <div className="text-[10px] px-3 py-1 rounded-full bg-[var(--color-muted)] text-[var(--color-muted-foreground)]">
+                        <div className="text-[10px] px-3 py-1 rounded-full bg-white/5 text-white/40">
                           {msg.content}
                         </div>
                       </div>
@@ -190,25 +188,25 @@ export default function HistoryPage() {
                   return (
                     <div key={msg.id} className={`flex ${isAssistant ? "justify-start" : "justify-end"}`}>
                       <div
-                        className={`max-w-[75%] px-4 py-2.5 rounded-xl text-sm ${
+                        className={`max-w-[75%] px-4 py-2.5 rounded-xl text-sm text-white/70 ${
                           isAssistant
-                            ? "bg-gradient-to-br from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 border border-[var(--color-primary)]/10 rounded-bl-md"
-                            : "bg-gradient-to-br from-[var(--color-accent)]/20 to-[var(--color-primary)]/20 rounded-br-md"
+                            ? "bg-gradient-to-br from-violet-500/20 to-indigo-600/20 border border-violet-500/20 rounded-bl-md"
+                            : "bg-gradient-to-br from-violet-500/30 to-indigo-600/30 rounded-br-md"
                         }`}
                       >
                         <div className="flex items-center gap-1.5 mb-1">
                           {isAssistant ? (
                             <>
-                              <Bot className="w-3 h-3 text-[var(--color-accent)]" />
-                              <span className="text-[10px] font-semibold text-[var(--color-accent)]">Bot</span>
+                              <Bot className="w-3 h-3 text-violet-400" />
+                              <span className="text-[10px] font-semibold text-violet-400">Bot</span>
                             </>
                           ) : (
                             <>
-                              <User className="w-3 h-3 text-[var(--color-foreground)]" />
-                              <span className="text-[10px] font-semibold text-[var(--color-muted-foreground)]">User</span>
+                              <User className="w-3 h-3 text-white" />
+                              <span className="text-[10px] font-semibold text-white/40">User</span>
                             </>
                           )}
-                          <span className="text-[9px] text-[var(--color-muted-foreground)] ml-auto">
+                          <span className="text-[9px] text-white/40 ml-auto">
                             {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                           </span>
                         </div>
@@ -228,20 +226,20 @@ export default function HistoryPage() {
   // ── List view ──
   return (
     <ErrorBoundary>
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-[var(--color-border)] text-[var(--color-accent)] bg-[var(--color-accent)]/5">
+            <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-white/5 text-violet-400 bg-violet-400/5">
               <MessageSquare className="w-3 h-3" />
               Chat History
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Conversations</h1>
-            <p className="text-xs text-[var(--color-muted-foreground)] mt-0.5">{total} total conversations</p>
+            <h1 className="text-xl font-bold tracking-tight text-white">Conversations</h1>
+            <p className="text-xs text-white/40 mt-0.5">{total} total conversations</p>
           </div>
           <button
             onClick={fetchConversations}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Refresh
@@ -251,15 +249,15 @@ export default function HistoryPage() {
         {/* Filters */}
         <div className="flex items-center gap-3">
           <div className="relative flex-1 max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted-foreground)]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             <input
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
               placeholder="Search by name or email..."
-              className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+              className="w-full pl-9 pr-3 py-2 rounded-xl bg-white/5 border border-white/10 text-sm text-white placeholder-white/40 focus:outline-none focus:border-violet-400/50 transition-all"
             />
           </div>
-          <div className="flex gap-1 p-1 rounded-xl bg-[var(--color-card)] border border-[var(--color-border)]">
+          <div className="flex gap-1 p-1 rounded-xl bg-white/5 border border-white/10">
             {[
               { id: "all", label: "All" },
               { id: "active", label: "Active" },
@@ -272,8 +270,8 @@ export default function HistoryPage() {
                 onClick={() => { setStatusFilter(f.id); setPage(1); }}
                 className={`px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${
                   statusFilter === f.id
-                    ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-                    : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+                    ? "bg-violet-400/10 text-violet-400"
+                    : "text-white/40 hover:text-white/70"
                 }`}
               >
                 {f.label}
@@ -286,61 +284,61 @@ export default function HistoryPage() {
         <div className="space-y-2">
           {loading ? (
             <div className="flex justify-center py-12">
-              <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : conversations.length === 0 ? (
-            <div className="p-12 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-[var(--color-muted)] flex items-center justify-center mb-3">
-                <MessageSquare className="w-6 h-6 text-[var(--color-muted-foreground)]" />
+            <div className="p-12 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-3">
+                <MessageSquare className="w-6 h-6 text-white/40" />
               </div>
-              <p className="text-sm text-[var(--color-muted-foreground)]">No conversations found</p>
+              <p className="text-sm text-white/40">No conversations found</p>
             </div>
           ) : (
             conversations.map((conv) => (
               <button
                 key={conv.id}
                 onClick={() => openConversation(conv)}
-                className="w-full text-left p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/[0.02] transition-all group"
+                className="w-full text-left p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-violet-400/30 hover:bg-violet-400/[0.02] transition-all group"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-bold text-[var(--color-accent)]">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/20 to-indigo-600/20 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-violet-400">
                         {(conv.customerEmail?.[0] || conv.customerName?.[0] || "?").toUpperCase()}
                       </span>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium truncate">
+                        <span className="text-sm font-medium text-white truncate">
                           {conv.customerEmail || conv.customerName || "Anonymous"}
                         </span>
                         {statusBadge(conv.status)}
                       </div>
                       <div className="flex items-center gap-3 mt-1">
-                        <div className="flex items-center gap-1 text-[10px] text-[var(--color-muted-foreground)]">
+                        <div className="flex items-center gap-1 text-[10px] text-white/40">
                           <Bot className="w-3 h-3" />
                           {conv.bot?.name || "Bot"}
                         </div>
-                        <span className="text-[10px] text-[var(--color-muted-foreground)]">·</span>
-                        <div className="text-[10px] text-[var(--color-muted-foreground)] capitalize">
+                        <span className="text-[10px] text-white/40">·</span>
+                        <div className="text-[10px] text-white/40 capitalize">
                           {conv.channel}
                         </div>
-                        <span className="text-[10px] text-[var(--color-muted-foreground)]">·</span>
-                        <div className="text-[10px] text-[var(--color-muted-foreground)]">
+                        <span className="text-[10px] text-white/40">·</span>
+                        <div className="text-[10px] text-white/40">
                           {conv._count?.messages || conv.messageCount} msgs
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-[10px] text-[var(--color-muted-foreground)] whitespace-nowrap shrink-0">
+                  <div className="flex items-center gap-2 text-[10px] text-white/40 whitespace-nowrap shrink-0">
                     <Clock className="w-3 h-3" />
                     {new Date(conv.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 {conv.messages?.[0] && (
                   <div className="mt-2 ml-13 pl-13">
-                    <p className="text-xs text-[var(--color-muted-foreground)] line-clamp-1">
-                      <span className="font-medium text-[var(--color-foreground)]/60">
+                    <p className="text-xs text-white/40 line-clamp-1">
+                      <span className="font-medium text-white/60">
                         {conv.messages[0].role === "assistant" ? "Bot: " : "User: "}
                       </span>
                       {conv.messages[0].content}
@@ -358,18 +356,18 @@ export default function HistoryPage() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] disabled:opacity-40 transition-all"
+              className="inline-flex items-center gap-1 rounded-full text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 px-3 py-1.5 disabled:opacity-40 transition-all"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
               Previous
             </button>
-            <span className="text-xs text-[var(--color-muted-foreground)]">
+            <span className="text-xs text-white/40">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] disabled:opacity-40 transition-all"
+              className="inline-flex items-center gap-1 rounded-full text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 px-3 py-1.5 disabled:opacity-40 transition-all"
             >
               Next
               <ChevronRight className="w-3.5 h-3.5" />

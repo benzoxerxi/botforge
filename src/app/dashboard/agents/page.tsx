@@ -133,30 +133,30 @@ export default function AgentsPage() {
 
   return (
     <ErrorBoundary>
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-[var(--color-border)] text-[var(--color-accent)] bg-[var(--color-accent)]/5">
+            <div className="inline-flex items-center gap-1.5 mb-2 px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider border border-white/5 text-violet-400 bg-violet-500/10">
               <Users className="w-3 h-3" />
               Agent Management
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Agents</h1>
-            <p className="text-xs text-[var(--color-muted-foreground)] mt-0.5">
+            <h1 className="text-xl font-bold tracking-tight text-white">Agents</h1>
+            <p className="text-xs text-white/40 mt-0.5">
               {agents.length} {agents.length === 1 ? "agent" : "agents"} on your team
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={fetchAgents}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 transition-all"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Refresh
             </button>
             <button
               onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent)]/90 transition-all"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-violet-500 text-white hover:bg-violet-500/90 transition-all"
             >
               <UserPlus className="w-3.5 h-3.5" />
               Add Agent
@@ -166,12 +166,12 @@ export default function AgentsPage() {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-muted-foreground)]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search agents by name or email..."
-            className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-[var(--color-card)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+            className="w-full pl-9 pr-3 py-2 rounded-xl text-sm bg-white/[0.02] border border-white/5 text-white placeholder-white/40 focus:outline-none focus:border-violet-400/50 transition-all"
           />
         </div>
 
@@ -179,20 +179,20 @@ export default function AgentsPage() {
         <div className="space-y-2">
           {loading ? (
             <div className="flex justify-center py-12">
-              <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : filtered.length === 0 ? (
-            <div className="p-12 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-center">
-              <div className="w-12 h-12 mx-auto rounded-full bg-[var(--color-muted)] flex items-center justify-center mb-3">
-                <Users className="w-6 h-6 text-[var(--color-muted-foreground)]" />
+            <div className="p-12 rounded-2xl border border-white/5 bg-white/[0.02] text-center">
+              <div className="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-3">
+                <Users className="w-6 h-6 text-white/40" />
               </div>
-              <p className="text-sm text-[var(--color-muted-foreground)]">
+              <p className="text-sm text-white/40">
                 {search.trim() ? "No agents match your search" : "No agents yet"}
               </p>
               {!search.trim() && (
                 <button
                   onClick={() => setShowCreate(true)}
-                  className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-medium bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent)]/90 transition-all"
+                  className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium bg-violet-500 text-white hover:bg-violet-500/90 transition-all"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   Add your first agent
@@ -203,34 +203,34 @@ export default function AgentsPage() {
             filtered.map((agent) => (
               <div
                 key={agent.id}
-                className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-accent)]/30 transition-all"
+                className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-violet-400/30 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
-                      <span className="text-sm font-bold text-[var(--color-accent)]">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/20 to-indigo-600/20 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-violet-400">
                         {(agent.name?.[0] || agent.email[0]).toUpperCase()}
                       </span>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium truncate">
+                        <span className="text-sm font-medium text-white truncate">
                           {agent.name || "Unnamed"}
                         </span>
                         {agent.active ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border border-green-500/20 bg-green-500/10 text-green-400">
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border-green-500/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border border-slate-500/20 bg-slate-500/10 text-slate-400">
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-400 border-slate-500/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
                             Inactive
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <div className="flex items-center gap-1 text-[10px] text-[var(--color-muted-foreground)]">
+                        <div className="flex items-center gap-1 text-[10px] text-white/40">
                           <Mail className="w-3 h-3" />
                           {agent.email}
                         </div>
@@ -270,8 +270,8 @@ export default function AgentsPage() {
         {/* Create Agent Modal */}
         {showCreate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-md p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-2xl">
-              <h3 className="text-lg font-semibold mb-4">Add New Agent</h3>
+            <div className="w-full max-w-md p-6 rounded-2xl border border-white/5 bg-white/[0.02] shadow-2xl">
+              <h3 className="text-lg font-semibold text-white mb-4">Add New Agent</h3>
               {createError && (
                 <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400">
                   {createError}
@@ -279,18 +279,18 @@ export default function AgentsPage() {
               )}
               <form onSubmit={createAgent} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1.5">
+                  <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
                     Name
                   </label>
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Agent name"
-                    className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+                    className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-white/40 focus:outline-none focus:border-violet-400/50 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1.5">
+                  <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
                     Email *
                   </label>
                   <input
@@ -299,11 +299,11 @@ export default function AgentsPage() {
                     placeholder="agent@company.com"
                     type="email"
                     required
-                    className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+                    className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-white/40 focus:outline-none focus:border-violet-400/50 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1.5">
+                  <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1.5">
                     Password *
                   </label>
                   <input
@@ -312,21 +312,21 @@ export default function AgentsPage() {
                     placeholder="Secure password"
                     type="password"
                     required
-                    className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+                    className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-white/40 focus:outline-none focus:border-violet-400/50 transition-all"
                   />
                 </div>
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
                     onClick={() => { setShowCreate(false); setCreateError(""); }}
-                    className="px-4 py-2 rounded-xl text-xs font-medium border border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-all"
+                    className="rounded-full text-xs font-medium bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 px-4 py-2 transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={creating}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent)]/90 disabled:opacity-50 transition-all"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium bg-violet-500 text-white hover:bg-violet-500/90 disabled:opacity-50 transition-all"
                   >
                     {creating ? (
                       <>

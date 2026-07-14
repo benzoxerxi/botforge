@@ -154,19 +154,19 @@ export default function CatalogTab({ companyId }: Props) {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--color-muted-foreground)]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/40" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search products..."
-              className="w-48 pl-9 pr-3 py-2 rounded-xl text-xs bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+              className="w-48 pl-9 pr-3 py-2 rounded-xl text-xs bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50 transition-all"
             />
           </div>
           {categories.length > 0 && (
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 rounded-xl text-xs bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 transition-all"
+              className="px-3 py-2 rounded-xl text-xs bg-black border border-white/5 text-white focus:outline-none focus:border-violet-400/50 transition-all"
             >
               <option value="">All Categories</option>
               {categories.map((c) => (
@@ -176,19 +176,19 @@ export default function CatalogTab({ companyId }: Props) {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium cursor-pointer bg-[var(--color-card)] border border-[var(--color-border)] hover:border-[var(--color-accent)]/50 hover:text-[var(--color-accent)] transition-all text-[var(--color-muted-foreground)]">
+          <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium cursor-pointer bg-white/[0.02] border border-white/5 hover:border-violet-400/50 hover:text-violet-400 transition-all text-white/40">
             <Upload className="w-3.5 h-3.5" />
             {uploading ? "Uploading..." : "Import CSV/XLSX"}
             <input type="file" accept=".csv,.xlsx,.xls" onChange={handleUpload} className="hidden" disabled={uploading} />
           </label>
           <button
             onClick={() => setShowAdd(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent)]/90 transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-violet-400 text-black hover:bg-violet-400/90 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             Add Product
           </button>
-          <button onClick={fetchItems} className="p-2 rounded-lg text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/50 transition-all">
+          <button onClick={fetchItems} className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5/50 transition-all">
             <RefreshCw className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -209,17 +209,17 @@ export default function CatalogTab({ companyId }: Props) {
       {/* Items Grid */}
       {loading ? (
         <div className="flex justify-center py-8">
-          <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+          <div className="w-5 h-5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="p-8 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-center">
-          <div className="w-12 h-12 mx-auto rounded-full bg-[var(--color-muted)] flex items-center justify-center mb-3">
-            <Package className="w-6 h-6 text-[var(--color-muted-foreground)]" />
+        <div className="p-8 rounded-xl border border-white/5 bg-white/[0.02] text-center">
+          <div className="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center mb-3">
+            <Package className="w-6 h-6 text-white/40" />
           </div>
-          <p className="text-sm text-[var(--color-muted-foreground)]">
+          <p className="text-sm text-white/40">
             {search || categoryFilter ? "No matching products" : "No products yet"}
           </p>
-          <p className="text-xs text-[var(--color-muted-foreground)] mt-1">
+          <p className="text-xs text-white/40 mt-1">
             Upload a CSV/XLSX file or add products manually
           </p>
         </div>
@@ -228,24 +228,24 @@ export default function CatalogTab({ companyId }: Props) {
           {filtered.map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-accent)]/30 transition-all group"
+              className="p-4 rounded-xl border border-white/5 bg-white/[0.02] hover:border-violet-400/30 transition-all group"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h4 className="text-sm font-medium truncate">{item.name}</h4>
                     {item.category && (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--color-muted)] text-[var(--color-muted-foreground)] uppercase tracking-wider shrink-0">
+                      <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/40 uppercase tracking-wider shrink-0">
                         {item.category}
                       </span>
                     )}
                   </div>
                   {item.description && (
-                    <p className="text-[11px] text-[var(--color-muted-foreground)] mt-1 line-clamp-2">{item.description}</p>
+                    <p className="text-[11px] text-white/40 mt-1 line-clamp-2">{item.description}</p>
                   )}
                   <div className="flex items-center gap-3 mt-2">
                     {item.price != null && (
-                      <div className="flex items-center gap-1 text-xs font-semibold text-[var(--color-accent)]">
+                      <div className="flex items-center gap-1 text-xs font-semibold text-violet-400">
                         <DollarSign className="w-3 h-3" />
                         {item.price.toFixed(2)}
                       </div>
@@ -273,43 +273,43 @@ export default function CatalogTab({ companyId }: Props) {
       {/* Add product modal */}
       {showAdd && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md p-6 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] shadow-2xl">
+          <div className="w-full max-w-md p-6 rounded-2xl border border-white/5 bg-white/[0.02] shadow-2xl">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Add Product</h3>
-              <button onClick={() => setShowAdd(false)} className="p-1 rounded-lg hover:bg-[var(--color-muted)]/50 transition-all">
+              <button onClick={() => setShowAdd(false)} className="p-1 rounded-lg hover:bg-white/5/50 transition-all">
                 <X className="w-4 h-4" />
               </button>
             </div>
             <form onSubmit={addItem} className="space-y-3">
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Name *</label>
-                <input value={addName} onChange={(e) => setAddName(e.target.value)} required placeholder="Product name" className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50" />
+                <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1">Name *</label>
+                <input value={addName} onChange={(e) => setAddName(e.target.value)} required placeholder="Product name" className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50" />
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Description</label>
-                <textarea value={addDesc} onChange={(e) => setAddDesc(e.target.value)} placeholder="Product description" rows={3} className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50 resize-none" />
+                <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1">Description</label>
+                <textarea value={addDesc} onChange={(e) => setAddDesc(e.target.value)} placeholder="Product description" rows={3} className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50 resize-none" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Price</label>
-                  <input value={addPrice} onChange={(e) => setAddPrice(e.target.value)} type="number" step="0.01" min="0" placeholder="0.00" className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50" />
+                  <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1">Price</label>
+                  <input value={addPrice} onChange={(e) => setAddPrice(e.target.value)} type="number" step="0.01" min="0" placeholder="0.00" className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50" />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Category</label>
-                  <input value={addCategory} onChange={(e) => setAddCategory(e.target.value)} placeholder="e.g. Electronics" className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50" />
+                  <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1">Category</label>
+                  <input value={addCategory} onChange={(e) => setAddCategory(e.target.value)} placeholder="e.g. Electronics" className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50" />
                 </div>
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Link</label>
-                <input value={addLink} onChange={(e) => setAddLink(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50" />
+                <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1">Link</label>
+                <input value={addLink} onChange={(e) => setAddLink(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50" />
               </div>
               <div>
-                <label className="block text-[10px] uppercase tracking-wider text-[var(--color-muted-foreground)] mb-1">Image URL</label>
-                <input value={addImageUrl} onChange={(e) => setAddImageUrl(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-xl text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-[var(--color-foreground)] placeholder-[var(--color-muted-foreground)] focus:outline-none focus:border-[var(--color-accent)]/50" />
+                <label className="block text-[10px] uppercase tracking-wider text-white/40 mb-1">Image URL</label>
+                <input value={addImageUrl} onChange={(e) => setAddImageUrl(e.target.value)} placeholder="https://..." className="w-full px-3 py-2 rounded-xl text-sm bg-black border border-white/5 text-white placeholder-[white/40] focus:outline-none focus:border-violet-400/50" />
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-xl text-xs font-medium border border-[var(--color-border)] text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] transition-all">Cancel</button>
-                <button type="submit" disabled={adding} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent)]/90 disabled:opacity-50 transition-all">
+                <button type="button" onClick={() => setShowAdd(false)} className="px-4 py-2 rounded-xl text-xs font-medium border border-white/5 text-white/40 hover:text-white transition-all">Cancel</button>
+                <button type="submit" disabled={adding} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium bg-violet-400 text-black hover:bg-violet-400/90 disabled:opacity-50 transition-all">
                   {adding ? "Adding..." : "Add Product"}
                 </button>
               </div>

@@ -456,7 +456,7 @@ export default function CompanyPage() {
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="w-5 h-5 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -476,11 +476,11 @@ export default function CompanyPage() {
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-lg font-semibold">{company?.name || "Dashboard"}</h2>
-          <p className="text-sm text-[var(--color-muted-foreground)]">{company?.slug}</p>
+          <p className="text-sm text-white/40">{company?.slug}</p>
         </div>
         {/* Token usage */}
         <div className="text-right">
-          <div className="text-xs text-[var(--color-muted-foreground)]">Token Usage</div>
+          <div className="text-xs text-white/40">Token Usage</div>
           <div className="text-sm font-semibold">
             {(company?.tokensUsed || 0).toLocaleString()} / {(company?.tokenLimit || 0).toLocaleString()}
           </div>
@@ -499,7 +499,7 @@ export default function CompanyPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-xl bg-[var(--color-card)] border border-[var(--color-border)] w-fit">
+      <div className="flex gap-1 p-1 rounded-xl bg-white/[0.02] border border-white/5 w-fit">
         {[
           { id: "bot" as const, label: "🤖 Bot Config" },
           { id: "knowledge" as const, label: "📚 Knowledge Base" },
@@ -513,8 +513,8 @@ export default function CompanyPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
               activeTab === tab.id
-                ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-                : "text-themed hover:text-themed"
+                ? "bg-violet-400/10 text-violet-400"
+                : "text-white/70 hover:text-white/70"
             }`}
           >
             {tab.label}
@@ -524,7 +524,7 @@ export default function CompanyPage() {
 
       {/* BOT CONFIG TAB */}
       {activeTab === "bot" && (
-        <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
           <h3 className="text-sm font-semibold mb-4">Bot Settings</h3>
 
           {saveMsg && (
@@ -535,27 +535,27 @@ export default function CompanyPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-xs text-themed mb-1">Bot Name</label>
+              <label className="block text-xs text-white/70 mb-1">Bot Name</label>
               <input
                 value={botName}
                 onChange={(e) => setBotName(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm"
+                className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm"
                 placeholder="Customer Support Bot"
               />
             </div>
             <div>
-              <label className="block text-xs text-themed mb-1">System Prompt</label>
+              <label className="block text-xs text-white/70 mb-1">System Prompt</label>
               <textarea
                 value={systemPrompt}
                 onChange={(e) => setSystemPrompt(e.target.value)}
                 rows={5}
-                className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm placeholder-[var(--color-muted-foreground)]"
+                className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm placeholder-white/40"
                 placeholder="You are a helpful customer support assistant..."
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs text-themed mb-1">Temperature ({temperature})</label>
+                <label className="block text-xs text-white/70 mb-1">Temperature ({temperature})</label>
                 <input
                   type="range"
                   min="0"
@@ -563,15 +563,15 @@ export default function CompanyPage() {
                   step="0.05"
                   value={temperature}
                   onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                  className="w-full accent-[var(--color-accent)]"
+                  className="w-full accent-violet-400"
                 />
               </div>
               <div>
-                <label className="block text-xs text-themed mb-1">Max Tokens</label>
+                <label className="block text-xs text-white/70 mb-1">Max Tokens</label>
                 <select
                   value={maxTokens}
                   onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-                  className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm"
+                  className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm"
                 >
                   <option value={512}>512</option>
                   <option value={1024}>1024</option>
@@ -584,7 +584,7 @@ export default function CompanyPage() {
               <button
                 onClick={() => setUseRag(!useRag)}
                 className={`w-10 h-5 rounded-full relative transition-all ${
-                  useRag ? "bg-[var(--color-accent)]" : "bg-white/20"
+                  useRag ? "bg-violet-400" : "bg-white/20"
                 }`}
               >
                 <div
@@ -598,7 +598,7 @@ export default function CompanyPage() {
             <button
               onClick={saveBotConfig}
               disabled={saving}
-              className="px-5 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-primary)] hover:opacity-90 transition-all disabled:opacity-50 glow-teal"
+              className="px-5 py-2 rounded-full text-sm font-medium text-white bg-violet-500 hover:opacity-90 transition-all disabled:opacity-50 "
             >
               {saving ? "Saving..." : "💾 Save Config"}
             </button>
@@ -610,22 +610,22 @@ export default function CompanyPage() {
       {activeTab === "knowledge" && (
         <div className="space-y-4">
           {/* Add knowledge */}
-          <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+          <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
             <h3 className="text-sm font-semibold mb-4">Add Knowledge Source</h3>
             <div className="space-y-3">
               <input
                 value={kbName}
                 onChange={(e) => setKbName(e.target.value)}
                 placeholder="Name (e.g. Product FAQs)"
-                className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm"
+                className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm"
               />
               <div className="flex gap-2">
                 <button
                   onClick={() => setKbType("qa")}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     kbType === "qa"
-                      ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-                      : "bg-white/5 text-themed"
+                      ? "bg-violet-400/10 text-violet-400"
+                      : "bg-white/5 text-white/70"
                   }`}
                 >
                   📝 Q&A Pairs
@@ -634,8 +634,8 @@ export default function CompanyPage() {
                   onClick={() => setKbType("crawl")}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     kbType === "crawl"
-                      ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-                      : "bg-white/5 text-themed"
+                      ? "bg-violet-400/10 text-violet-400"
+                      : "bg-white/5 text-white/70"
                   }`}
                 >
                   🌐 Website Crawl
@@ -644,8 +644,8 @@ export default function CompanyPage() {
                   onClick={() => setKbType("document")}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     kbType === "document"
-                      ? "bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-                      : "bg-white/5 text-themed"
+                      ? "bg-violet-400/10 text-violet-400"
+                      : "bg-white/5 text-white/70"
                   }`}
                 >
                   📄 Upload File
@@ -657,28 +657,28 @@ export default function CompanyPage() {
                   onChange={(e) => setQaPairs(e.target.value)}
                   rows={4}
                   placeholder="Question? Answer (one per line)&#10;What are your hours? We're open 9-6&#10;Where are you located? 123 Main St"
-                  className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm placeholder-[var(--color-muted-foreground)]"
+                  className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm placeholder-white/40"
                 />
               ) : kbType === "crawl" ? (
                 <input
                   value={crawlUrl}
                   onChange={(e) => setCrawlUrl(e.target.value)}
                   placeholder="https://example.com"
-                  className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm"
+                  className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm"
                 />
               ) : (
                 <div className="space-y-2">
-                  <label className="block text-xs text-themed">
+                  <label className="block text-xs text-white/70">
                     Supported: PDF, TXT, MD, CSV
                   </label>
                   <input
                     type="file"
                     accept=".pdf,.txt,.md,.csv"
                     onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                    className="w-full text-sm text-themed file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:text-white file:bg-[var(--color-accent)]/20 file:hover:bg-[var(--color-accent)]/30 file:cursor-pointer transition-all"
+                    className="w-full text-sm text-white/70 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:text-white file:bg-violet-400/20 file:hover:bg-violet-400/30 file:cursor-pointer transition-all"
                   />
                   {uploadFile && (
-                    <div className="text-xs text-[var(--color-muted-foreground)]">
+                    <div className="text-xs text-white/40">
                       Selected: {uploadFile.name} ({(uploadFile.size / 1024).toFixed(1)} KB)
                     </div>
                   )}
@@ -687,7 +687,7 @@ export default function CompanyPage() {
               <button
                 onClick={addKnowledge}
                 disabled={uploading || (kbType === "document" && !uploadFile)}
-                className="px-5 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-primary)] hover:opacity-90 transition-all disabled:opacity-50 glow-teal"
+                className="px-5 py-2 rounded-full text-sm font-medium text-white bg-violet-500 hover:opacity-90 transition-all disabled:opacity-50 "
               >
                 {uploading ? "⏳ Uploading..." : kbType === "document" ? "📤 Upload" : "➕ Add"}
               </button>
@@ -700,7 +700,7 @@ export default function CompanyPage() {
               <button
                 onClick={analyzeKnowledge}
                 disabled={analyzing}
-                className="px-4 py-1.5 rounded-lg text-xs font-medium text-[var(--color-accent)] border border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/10 transition-all disabled:opacity-50"
+                className="px-4 py-1.5 rounded-lg text-xs font-medium text-violet-400 border border-violet-400/30 hover:bg-violet-400/10 transition-all disabled:opacity-50"
               >
                 {analyzing ? "⏳ Analyzing..." : "🔍 Analyze KB"}
               </button>
@@ -709,37 +709,37 @@ export default function CompanyPage() {
 
           {/* Analysis result dialog */}
           {analyzeResult && (
-            <div className="mb-3 p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+            <div className="mb-3 p-3 rounded-xl border border-white/5 bg-white/[0.02]">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold">KB Analysis</span>
-                <button onClick={() => setAnalyzeResult(null)} className="text-xs text-themed hover:text-themed">✕</button>
+                <button onClick={() => setAnalyzeResult(null)} className="text-xs text-white/70 hover:text-white/70">✕</button>
               </div>
-              <pre className="text-xs leading-relaxed whitespace-pre-wrap text-themed font-sans">{analyzeResult}</pre>
+              <pre className="text-xs leading-relaxed whitespace-pre-wrap text-white/70 font-sans">{analyzeResult}</pre>
             </div>
           )}
 
           {/* Knowledge list */}
           <div className="space-y-2">
             {knowledge.length === 0 && (
-              <p className="text-sm text-[var(--color-muted-foreground)] text-center py-8">
+              <p className="text-sm text-white/40 text-center py-8">
                 No knowledge sources yet. Add Q&A pairs or a website URL above.
               </p>
             )}
             {knowledge.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]"
+                className="flex items-center justify-between p-3 rounded-xl border border-white/5 bg-white/[0.02]"
               >
                 <div>
                   <div className="text-sm font-medium">{item.name}</div>
-                  <div className="text-xs text-[var(--color-muted-foreground)]">
+                  <div className="text-xs text-white/40">
                     {item.type === "qa" ? "📝 Q&A" : item.type === "crawl" ? "🌐 Web" : "📄 Document"} · {item.chunkCount} chunks{item.sourceUrl ? ` · ${item.sourceUrl}` : ""}
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEditKb(item)}
-                    className="text-xs text-[var(--color-accent)] hover:text-[var(--color-accent)]/80"
+                    className="text-xs text-violet-400 hover:text-violet-400/80"
                   >
                     ✏️ Edit
                   </button>
@@ -808,14 +808,14 @@ export default function CompanyPage() {
       {/* EDIT KB DIALOG */}
       {editKbId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setEditKbId(null)}>
-          <div className="w-full max-w-lg mx-4 p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg mx-4 p-5 rounded-xl border border-white/5 bg-white/[0.02]" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-sm font-semibold mb-4">✏️ Edit: {editKbName}</h3>
 
             <div className="space-y-3">
               <input
                 value={editKbName}
                 onChange={(e) => setEditKbName(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm"
+                className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm"
                 placeholder="Name"
               />
 
@@ -823,7 +823,7 @@ export default function CompanyPage() {
                 <input
                   value={editSourceUrl}
                   onChange={(e) => setEditSourceUrl(e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm"
+                  className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm"
                   placeholder="Source URL (optional)"
                 />
               )}
@@ -831,20 +831,20 @@ export default function CompanyPage() {
                 value={editQaData}
                 onChange={(e) => setEditQaData(e.target.value)}
                 rows={6}
-                className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm placeholder-[var(--color-muted-foreground)]"
+                className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm placeholder-white/40"
                 placeholder="Question? Answer (one per line)&#10;Each line is a separate knowledge fact"
               />
 
               <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => setEditKbId(null)}
-                  className="px-4 py-2 rounded-lg text-sm text-themed hover:text-themed/80 bg-white/5 hover:bg-white/10 transition-all"
+                  className="px-4 py-2 rounded-lg text-sm text-white/70 hover:text-white/70/80 bg-white/5 hover:bg-white/10 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={saveEditKb}
-                  className="px-5 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-primary)] hover:opacity-90 transition-all glow-teal"
+                  className="px-5 py-2 rounded-full text-sm font-medium text-white bg-violet-500 hover:opacity-90 transition-all "
                 >
                   💾 Save
                 </button>
@@ -855,12 +855,12 @@ export default function CompanyPage() {
       )}
 
       {activeTab === "widget" && !company?.chatWidgets?.[0] && (
-        <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] text-center py-8">
+        <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02] text-center py-8">
           <div className="text-2xl mb-2">🌐</div>
-          <p className="text-sm text-[var(--color-muted-foreground)] mb-3">Widget not configured yet</p>
+          <p className="text-sm text-white/40 mb-3">Widget not configured yet</p>
           <button
             onClick={createWidget}
-            className="px-5 py-2 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-primary)] hover:opacity-90 transition-all glow-teal"
+            className="px-5 py-2 rounded-full text-sm font-medium text-white bg-violet-500 hover:opacity-90 transition-all "
           >
             ➕ Create Widget
           </button>
@@ -948,38 +948,38 @@ function AgentSection({ companyId, botId }: { companyId?: string; botId?: string
   };
 
   return (
-    <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+    <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-sm font-semibold">👤 Support Agents</h3>
-          <p className="text-xs text-themed mt-1">Agents can answer customer chats without accessing the dashboard.</p>
+          <p className="text-xs text-white/70 mt-1">Agents can answer customer chats without accessing the dashboard.</p>
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--color-accent)] text-white hover:opacity-90 transition-all"
+          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-400 text-white hover:opacity-90 transition-all"
         >
           + Add Agent
         </button>
       </div>
 
       {showCreate && (
-        <form onSubmit={createAgent} className="mb-4 p-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)] space-y-3">
+        <form onSubmit={createAgent} className="mb-4 p-4 rounded-lg border border-white/5 bg-black space-y-3">
           <h4 className="text-xs font-semibold">New Agent</h4>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name (optional)"
-            className="w-full px-3 py-2 rounded-lg text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-themed placeholder-[var(--color-muted-foreground)]" />
+            className="w-full px-3 py-2 rounded-lg text-sm bg-black border border-white/5 text-white/70 placeholder-white/40" />
           <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required
-            className="w-full px-3 py-2 rounded-lg text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-themed placeholder-[var(--color-muted-foreground)]" />
+            className="w-full px-3 py-2 rounded-lg text-sm bg-black border border-white/5 text-white/70 placeholder-white/40" />
           <input value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" type="password" required
-            className="w-full px-3 py-2 rounded-lg text-sm bg-[var(--color-background)] border border-[var(--color-border)] text-themed placeholder-[var(--color-muted-foreground)]" />
+            className="w-full px-3 py-2 rounded-lg text-sm bg-black border border-white/5 text-white/70 placeholder-white/40" />
           {error && <div className="text-xs text-red-400">{error}</div>}
           {success && <div className="text-xs text-green-400">{success}</div>}
           <div className="flex gap-2">
             <button type="submit" disabled={creating}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--color-accent)] text-white hover:opacity-90 disabled:opacity-50">
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-400 text-white hover:opacity-90 disabled:opacity-50">
               {creating ? "..." : "Create Agent"}
             </button>
             <button type="button" onClick={() => setShowCreate(false)}
-              className="px-3 py-1.5 rounded-lg text-xs border border-[var(--color-border)] text-themed hover:bg-[var(--color-border)]/50">
+              className="px-3 py-1.5 rounded-lg text-xs border border-white/5 text-white/70 hover:bg-white/5">
               Cancel
             </button>
           </div>
@@ -988,24 +988,24 @@ function AgentSection({ companyId, botId }: { companyId?: string; botId?: string
 
       {loading ? (
         <div className="flex justify-center py-8">
-          <div className="w-4 h-4 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+          <div className="w-4 h-4 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : agents.length === 0 ? (
-        <div className="text-xs text-themed text-center py-8">No agents yet. Create one to get started.</div>
+        <div className="text-xs text-white/70 text-center py-8">No agents yet. Create one to get started.</div>
       ) : (
         <div className="space-y-2">
           {agents.map((agent) => (
-            <div key={agent.id} className="flex items-center justify-between p-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-background)]">
+            <div key={agent.id} className="flex items-center justify-between p-3 rounded-lg border border-white/5 bg-black">
               <div>
-                <div className="text-sm font-medium text-themed">{agent.name || agent.email}</div>
-                <div className="text-xs text-themed">{agent.email} · {new Date(agent.createdAt).toLocaleDateString()}</div>
+                <div className="text-sm font-medium text-white/70">{agent.name || agent.email}</div>
+                <div className="text-xs text-white/70">{agent.email} · {new Date(agent.createdAt).toLocaleDateString()}</div>
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${agent.active ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
                   {agent.active ? "Active" : "Inactive"}
                 </span>
                 <button onClick={() => toggleAgent(agent.id, agent.active)}
-                  className="text-[10px] px-2 py-1 rounded border border-[var(--color-border)] text-themed hover:bg-[var(--color-border)]/50">
+                  className="text-[10px] px-2 py-1 rounded border border-white/5 text-white/70 hover:bg-white/5">
                   {agent.active ? "Deactivate" : "Activate"}
                 </button>
                 <button onClick={() => deleteAgent(agent.id)}
@@ -1079,9 +1079,9 @@ function WidgetSettings({
 
   const colorRow = (label: string, value: string, onChange: (v: string) => void) => (
     <div className="flex items-center gap-2">
-      <label className="text-xs text-[var(--color-muted-foreground)] min-w-[100px]">{label}</label>
+      <label className="text-xs text-white/40 min-w-[100px]">{label}</label>
       <input type="color" value={value} onChange={(e) => onChange(e.target.value)} className="w-8 h-8 rounded cursor-pointer border-0 bg-transparent" />
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="flex-1 px-2 py-1 rounded bg-[var(--color-background)] border border-[var(--color-border)] text-xs font-mono" />
+      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="flex-1 px-2 py-1 rounded bg-black border border-white/5 text-xs font-mono" />
     </div>
   );
 
@@ -1091,17 +1091,17 @@ function WidgetSettings({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       {/* Left: Appearance Settings */}
-      <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] space-y-4">
+      <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02] space-y-4">
         <h3 className="text-sm font-semibold">🎨 Widget Appearance</h3>
 
         {/* Presets */}
         <div>
-          <label className="text-xs text-[var(--color-muted-foreground)] mb-2 block">Quick Presets</label>
+          <label className="text-xs text-white/40 mb-2 block">Quick Presets</label>
           <div className="flex flex-wrap gap-1.5">
             {presets.map((name) => (
               <button key={name} onClick={() => applyPreset(name)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  preset === name ? "bg-[var(--color-accent)]/20 text-[var(--color-accent)] ring-1 ring-[var(--color-accent)]" : "bg-white/5 hover:bg-white/10 text-themed"
+                  preset === name ? "bg-violet-400/20 text-violet-400 ring-1 ring-violet-400" : "bg-white/5 hover:bg-white/10 text-white/70"
                 }`}
               >
                 {presetLabels[name]}
@@ -1112,15 +1112,15 @@ function WidgetSettings({
 
         {/* Header Text */}
         <div className="pt-2 border-t border-white/5 space-y-3">
-          <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">Header</label>
-          <input value={title} onChange={(e) => onTitleChange(e.target.value)} placeholder="Widget title" className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm" />
-          <input value={subtitle} onChange={(e) => onSubtitleChange(e.target.value)} placeholder="Widget subtitle" className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm" />
-          <input value={greeting} onChange={(e) => onGreetingChange(e.target.value)} placeholder="Greeting message" className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm" />
+          <label className="text-xs font-semibold text-white/40">Header</label>
+          <input value={title} onChange={(e) => onTitleChange(e.target.value)} placeholder="Widget title" className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm" />
+          <input value={subtitle} onChange={(e) => onSubtitleChange(e.target.value)} placeholder="Widget subtitle" className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm" />
+          <input value={greeting} onChange={(e) => onGreetingChange(e.target.value)} placeholder="Greeting message" className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm" />
         </div>
 
         {/* Colors */}
         <div className="pt-2 border-t border-white/5 space-y-2">
-          <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">Colors</label>
+          <label className="text-xs font-semibold text-white/40">Colors</label>
           {colorRow("Accent", accent, onAccentChange)}
           {colorRow("Background", bg, onBgChange)}
           {colorRow("Text", text, onTextChange)}
@@ -1128,8 +1128,8 @@ function WidgetSettings({
 
         {/* Position */}
         <div className="pt-2 border-t border-white/5">
-          <label className="text-xs text-[var(--color-muted-foreground)] mb-2 block">Position</label>
-          <select value={position_} onChange={(e) => onPositionChange(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm">
+          <label className="text-xs text-white/40 mb-2 block">Position</label>
+          <select value={position_} onChange={(e) => onPositionChange(e.target.value)} className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm">
             <option value="bottom-right">Bottom Right</option>
             <option value="bottom-left">Bottom Left</option>
           </select>
@@ -1137,7 +1137,7 @@ function WidgetSettings({
 
         {/* Bubble Colors */}
         <div className="pt-2 border-t border-white/5 space-y-2">
-          <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">💬 Chat Bubbles</label>
+          <label className="text-xs font-semibold text-white/40">💬 Chat Bubbles</label>
           {colorRow("Bot Text", botTextColor_, onBotTextChange)}
           {colorRow("Agent BG", agentBubbleColor_, onAgentBubbleChange)}
           {colorRow("Agent Text", agentTextColor_, onAgentTextChange)}
@@ -1147,33 +1147,33 @@ function WidgetSettings({
 
         {/* Reset Button */}
         <div className="pt-2 border-t border-white/5 space-y-2">
-          <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">🔄 Start New Chat Button</label>
+          <label className="text-xs font-semibold text-white/40">🔄 Start New Chat Button</label>
           {colorRow("BG", resetButtonColor_, onResetColorChange)}
           {colorRow("Text", resetButtonTextColor_, onResetTextChange)}
-          <input value={resetButtonLabel_} onChange={(e) => onResetLabelChange(e.target.value)} placeholder="Button label" className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm" />
+          <input value={resetButtonLabel_} onChange={(e) => onResetLabelChange(e.target.value)} placeholder="Button label" className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm" />
         </div>
 
         {/* End Chat Button */}
         <div className="pt-2 border-t border-white/5 space-y-2">
-          <label className="text-xs font-semibold text-[var(--color-muted-foreground)]">✕ End Chat Button</label>
+          <label className="text-xs font-semibold text-white/40">✕ End Chat Button</label>
           {colorRow("BG", endChatButtonColor_, onEndChatColorChange)}
           {colorRow("Text", endChatButtonTextColor_, onEndChatTextChange)}
-          <input value={endChatButtonLabel_} onChange={(e) => onEndChatLabelChange(e.target.value)} placeholder="Button label" className="w-full px-3 py-2 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-sm" />
+          <input value={endChatButtonLabel_} onChange={(e) => onEndChatLabelChange(e.target.value)} placeholder="Button label" className="w-full px-3 py-2 rounded-lg bg-black border border-white/5 text-sm" />
         </div>
 
         {/* Save */}
         <button onClick={onSave} disabled={saving}
-          className="w-full px-5 py-2.5 rounded-full text-sm font-medium text-white bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-primary)] hover:opacity-90 transition-all disabled:opacity-50 glow-teal"
+          className="w-full px-5 py-2.5 rounded-full text-sm font-medium text-white bg-violet-500 hover:opacity-90 transition-all disabled:opacity-50 "
         >
           {saving ? "Saving..." : "💾 Save Widget Settings"}
         </button>
-        {saveMsg && <p className="text-xs text-center text-[var(--color-muted-foreground)]">{saveMsg}</p>}
+        {saveMsg && <p className="text-xs text-center text-white/40">{saveMsg}</p>}
       </div>
 
       {/* Right: Preview + Embed */}
       <div className="space-y-4">
         {/* Live Preview */}
-        <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
           <h3 className="text-sm font-semibold mb-3">👁 Preview</h3>
           <div className="rounded-xl overflow-hidden border border-white/10" style={{ backgroundColor: bg }}>
             {/* Header */}
@@ -1214,11 +1214,11 @@ function WidgetSettings({
         </div>
 
         {/* Embed Code */}
-        <div className="p-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)]">
+        <div className="p-5 rounded-xl border border-white/5 bg-white/[0.02]">
           <h3 className="text-sm font-semibold mb-1">📋 Embed Code</h3>
-          <p className="text-xs text-[var(--color-muted-foreground)] mb-3">Add to your website</p>
+          <p className="text-xs text-white/40 mb-3">Add to your website</p>
           <div className="relative">
-            <div className="p-2.5 rounded-lg bg-[var(--color-background)] border border-[var(--color-border)] text-xs font-mono text-themed break-all">
+            <div className="p-2.5 rounded-lg bg-black border border-white/5 text-xs font-mono text-white/70 break-all">
               {widget?.widgetCode
                 ? `<script src="https://chat.benzos.uk/api/widget-embed/${widget.widgetCode}"><` + `/script>`
                 : <span className="text-amber-400">Save widget settings first to get your embed code</span>
