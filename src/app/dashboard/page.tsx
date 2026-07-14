@@ -1,16 +1,14 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import ErrorBoundary from "@/components/ErrorBoundary";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import {
-  MessageSquare, Users, BarChart3, BookOpen, TrendingUp,
-  Activity, Bot, Zap, Settings, ArrowRight, Sparkles,
+  MessageSquare, Users, BarChart3, TrendingUp,
+  Activity, Bot, Zap, Settings, ChevronRight,
   Clock, Star, Timer, RefreshCw, BrainCircuit, HelpCircle,
-  Lightbulb, ThumbsUp, Search, ChevronRight, AlertCircle,
-  CheckCircle2, X,
+  Lightbulb, ThumbsUp,
 } from "lucide-react";
 import ManageCompanyModal from "./ManageCompanyModal";
 
@@ -39,15 +37,6 @@ interface Analytics {
   }>;
 }
 
-// ─── Navigation Items ───────────────────────────────
-const NAV_ITEMS = [
-  { key: "dashboard", label: "Dashboard", icon: Activity },
-  { key: "analytics", label: "Analytics", icon: BarChart3 },
-  { key: "company", label: "Bot Settings", icon: Settings },
-  { key: "history", label: "Chat History", icon: MessageSquare },
-  { key: "agent", label: "Agents", icon: Users },
-];
-
 // ─── Day / Hour Labels ──────────────────────────────
 const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const HOUR_LABELS = Array.from({ length: 12 }, (_, i) => `${i === 0 ? 12 : i}${i < 6 ? 'a' : 'p'}`);
@@ -72,7 +61,6 @@ export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeNav, setActiveNav] = useState("dashboard");
 
   const fetchData = useCallback(() => {
     const companyId = session?.user?.companyId;
@@ -101,79 +89,17 @@ export default function DashboardPage() {
   }, [status, router, session, fetchData]);
 
   const isSuperAdmin = session?.user?.role === "super_admin";
-  const onNav = (key: string) => {
-    setActiveNav(key);
-    if (key === "dashboard") return;
-    router.push(key === "analytics" ? "/dashboard/analytics" : `/dashboard/${key}`);
-  };
 
-  return (
-    <ErrorBoundary>
-      <div className="bg-[#000000] text-white min-h-screen">
-        {/* ───── Top Navigation ───── */}
-        <nav className="sticky top-0 z-50 bg-[#000000]/80 backdrop-blur-xl border-b border-white/5">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
-            <div className="flex items-center justify-between h-16">
-              {/* Logo */}
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-sm font-semibold tracking-tight">BotForge</span>
-                <span className="hidden sm:inline text-[9px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/40 border border-white/10 ml-1">
-                  {isSuperAdmin ? "Admin" : "Dashboard"}
-                </span>
-              </div>
-
-              {/* Nav Items */}
-              <div className="flex items-center gap-0.5">
-                {NAV_ITEMS.map((item) => {
-                  const isActive = activeNav === item.key;
-                  return (
-                    <button
-                      key={item.key}
-                      onClick={() => onNav(item.key)}
-                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-white text-black shadow-lg"
-                          : "text-white/50 hover:text-white/80 hover:bg-white/5"
-                      }`}
-                    >
-                      <item.icon className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Avatar */}
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500/20 to-indigo-600/20 flex items-center justify-center border border-white/10">
-                <span className="text-xs font-bold text-white/70">
-                  {session?.user?.name?.[0]?.toUpperCase() || "A"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </nav>
-
-        {/* ───── Content ───── */}
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-          {isSuperAdmin ? (
-            <AdminSection stats={stats} loading={loading} />
-          ) : loading ? (
-            <div className="flex justify-center py-32">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-8 h-8 border-[2.5px] border-violet-400 border-t-transparent rounded-full animate-spin" />
-                <span className="text-xs text-white/40">Loading analytics...</span>
-              </div>
-            </div>
-          ) : (
-            <CompanyDashboard analytics={analytics} />
-          )}
-        </div>
+  if (loading) return (
+    <div className="flex justify-center py-32">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-8 h-8 border-[2.5px] border-violet-400 border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs text-white/40">Loading analytics...</span>
       </div>
-    </ErrorBoundary>
+    </div>
   );
+
+  return isSuperAdmin ? <AdminSection stats={stats} loading={loading} /> : <CompanyDashboard analytics={analytics} />;
 }
 
 // ─── ═════════════════════════════════════════════════

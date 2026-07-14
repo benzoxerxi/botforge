@@ -4,35 +4,38 @@ import { useSession, signOut } from "next-auth/react";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import BotForgeLogo from "@/components/BotForgeLogo";
-import { useTheme } from "@/components/ThemeProvider";
 import {
   LayoutDashboard,
   Settings,
   Users,
   Bot,
+  Bot as BotIcon,
   LogOut,
   Menu,
   X,
-  Moon,
-  Sun,
   ChevronRight,
-  Gauge,
   MessageSquare,
   BarChart3,
+  Activity,
 } from "lucide-react";
+
+const NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: Activity },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard/company", label: "Bot Settings", icon: Settings },
+  { href: "/dashboard/history", label: "Chat History", icon: MessageSquare },
+  { href: "/dashboard/agents", label: "Agents", icon: Users },
+];
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // ── ALL hooks must be at the top, before any early return ──
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { theme, toggle: toggleTheme } = useTheme();
   const [widgetConfig, setWidgetConfig] = useState<any>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [widgetMessages, setWidgetMessages] = useState<Array<{ role: string; content: string }>>([]);
@@ -41,7 +44,6 @@ export default function DashboardLayout({
   const [widgetConversationId, setWidgetConversationId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // ── Effects ──
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -74,33 +76,23 @@ export default function DashboardLayout({
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [widgetMessages]);
 
-  // ── Loading / unauthenticated states ──
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-background)]">
-        <div className="w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#000000]">
+        <div className="w-6 h-6 border-2 border-violet-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (!session) return null;
 
-  // ── Derived values ──
   const isSuperAdmin = session.user.role === "super_admin";
-  const isCompanyUser = session.user.role === "company_admin" || session.user.role === "agent";
-  const userRole = session.user.role;
 
-  const navItems = [
-    { href: "/dashboard", label: "Overview", icon: LayoutDashboard, roles: ["super_admin", "company_admin", "agent"] },
-    { href: "/dashboard/admin", label: "Admin", icon: Gauge, roles: ["super_admin"] },
-    { href: "/dashboard/agent", label: "Agent Panel", icon: Users, roles: ["super_admin", "company_admin", "agent"] },
-    { href: "/dashboard/company", label: "Bot Settings", icon: Bot, roles: ["super_admin", "company_admin"] },
-    { href: "/dashboard/history", label: "Chat History", icon: MessageSquare, roles: ["super_admin", "company_admin", "agent"] },
-    { href: "/dashboard/agents", label: "Agents", icon: Users, roles: ["super_admin", "company_admin"] },
-    { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, roles: ["super_admin", "company_admin"] },
-  ];
+  const isActiveNav = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname?.startsWith(href) ?? false;
+  };
 
-  // ── Handlers ──
   const sendWidgetMessage = async () => {
     if (!widgetInput.trim() || !widgetConfig || widgetSending) return;
     const msg = widgetInput.trim();
@@ -135,105 +127,138 @@ export default function DashboardLayout({
     setChatOpen(!chatOpen);
   };
 
-  // ── Render ──
   return (
     <ErrorBoundary>
-    <div className="min-h-screen bg-[var(--color-background)] flex">
-      {/* Sidebar */}
-      <aside
-        className={`fixed md:static inset-y-0 left-0 z-40 w-64 bg-[var(--color-card)]/95 backdrop-blur-xl border-r border-[var(--color-border)] flex flex-col transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
-      >
-        <div className="p-5 border-b border-[var(--color-border)]">
-              <a href="/dashboard" className="flex items-center gap-2.5 group">
-            <BotForgeLogo size={22} />
-            <div className="flex items-baseline gap-px">
-              <span className="text-sm font-bold tracking-tight" style={{color:"var(--color-foreground)"}}>Bot</span>
-              <span className="text-sm font-bold tracking-tight gradient-text">Forge</span>
-            </div>
-          </a>
-        </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {navItems
-            .filter(item => item.roles.includes(userRole))
-            .map(item => {
-              const isActive = pathname === item.href || pathname?.startsWith(item.href + "/");
-              const Icon = item.icon;
-              return (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? "bg-gradient-to-r from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 border border-[var(--color-primary)]/20 text-[var(--color-accent)]"
-                      : "text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)] hover:bg-[var(--color-muted)]/50 border border-transparent"
-                  }`}
+      <div className="min-h-screen bg-[#000000] text-white">
+        {/* ── NEW Top Navigation ── */}
+        <nav className="sticky top-0 z-50 bg-[#000000]/80 backdrop-blur-xl border-b border-white/5">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="flex items-center justify-between h-16">
+              {/* Left: Logo + Mobile menu */}
+              <div className="flex items-center gap-2">
+                {/* Mobile hamburger */}
+                <button
+                  className="md:hidden p-2 -ml-2 rounded-lg hover:bg-white/5 transition-all text-white/50"
+                  onClick={() => setSidebarOpen(true)}
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.label}</span>
-                  {isActive && <ChevronRight className="w-3 h-3 ml-auto opacity-50" />}
+                  <Menu className="w-5 h-5" />
+                </button>
+
+                <a href="/dashboard" className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+                    <BotIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold tracking-tight">BotForge</span>
+                  <span className="hidden sm:inline text-[9px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/40 border border-white/10 ml-1">
+                    {isSuperAdmin ? "Admin" : "Dashboard"}
+                  </span>
                 </a>
-              );
-            })}
+              </div>
+
+              {/* Center: Nav items */}
+              <div className="hidden md:flex items-center gap-0.5">
+                {NAV_ITEMS.map((item) => {
+                  const active = isActiveNav(item.href);
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        active
+                          ? "bg-white text-black shadow-lg"
+                          : "text-white/50 hover:text-white/80 hover:bg-white/5"
+                      }`}
+                    >
+                      <item.icon className="w-3.5 h-3.5" />
+                      <span>{item.label}</span>
+                    </a>
+                  );
+                })}
+              </div>
+
+              {/* Right: User info + theme toggle + logout */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => signOut()}
+                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/20"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Sign Out</span>
+                </button>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500/20 to-indigo-600/20 flex items-center justify-center border border-white/10">
+                  <span className="text-xs font-bold text-white/70">
+                    {session.user.name?.[0]?.toUpperCase() || session.user.email?.[0]?.toUpperCase() || "A"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </nav>
-        <div className="p-3 border-t border-[var(--color-border)]">
-          <button
-            onClick={() => signOut()}
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
+
+        {/* ── Mobile Nav Drawer ── */}
+        {sidebarOpen && (
+          <>
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+              onClick={() => setSidebarOpen(false)}
+            />
+            <div className="fixed left-0 top-0 bottom-0 w-64 z-50 bg-[#0a0a0a] border-r border-white/5 p-4 flex flex-col">
+              <div className="flex items-center justify-between mb-6">
+                <a href="/dashboard" className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center">
+                    <BotIcon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-bold">BotForge</span>
+                </a>
+                <button
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-white/50"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <nav className="flex-1 space-y-1">
+                {NAV_ITEMS.map((item) => {
+                  const active = isActiveNav(item.href);
+                  return (
+                    <a
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        active
+                          ? "bg-white/10 text-white border border-white/10"
+                          : "text-white/50 hover:text-white/80 hover:bg-white/5 border border-transparent"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4 shrink-0" />
+                      <span>{item.label}</span>
+                      {active && <ChevronRight className="w-3 h-3 ml-auto opacity-50" />}
+                    </a>
+                  );
+                })}
+              </nav>
+
+              <button
+                onClick={() => { setSidebarOpen(false); signOut(); }}
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* ── Main Content ── */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+          {children}
         </div>
 
-      </aside>
-
-      {/* Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-20 bg-[var(--color-background)]/80 backdrop-blur-xl border-b border-[var(--color-border)] px-6 h-14 flex items-center justify-between">
-          <button
-            className="md:hidden p-2 -ml-2 rounded-lg hover:bg-[var(--color-muted)]/50 transition-all text-[var(--color-muted-foreground)]"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="flex items-center gap-3 ml-auto">
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-[var(--color-muted)]/50 transition-all text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]"
-              title={theme === "light" ? "Dark mode" : "Light mode"}
-            >
-              {theme === "light" ? (
-                <Moon className="w-4 h-4" />
-              ) : (
-                <Sun className="w-4 h-4" />
-              )}
-            </button>
-            <span className="text-xs text-[var(--color-muted-foreground)] hidden sm:block">{session.user.name || session.user.email}</span>
-            {isSuperAdmin && (
-              <span className="text-[9px] px-2 py-0.5 rounded-full uppercase font-semibold tracking-wider border border-[var(--color-accent)]/20 text-[var(--color-accent)] bg-[var(--color-accent)]/5">
-                Admin
-              </span>
-            )}
-          </div>
-        </header>
-        <main className="flex-1 p-5 md:p-6 lg:p-8">{children}</main>
-
-        {/* Floating widget button - always visible for company users */}
+        {/* ── Floating Widget ── */}
         {!isSuperAdmin && widgetConfig && (
           <>
-            {/* FAB button */}
             <button
               onClick={openWidgetChat}
               className="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-transform hover:scale-110 active:scale-95"
@@ -248,28 +273,22 @@ export default function DashboardLayout({
               )}
             </button>
 
-            {/* Chat overlay - exactly matches widget design */}
             {chatOpen && (
               <div className="fixed bottom-24 right-5 z-50 w-80 sm:w-96 rounded-2xl shadow-2xl overflow-hidden border"
                 style={{ backgroundColor: widgetConfig.bgColor, borderColor: "rgba(255,255,255,0.1)" }}>
-                {/* Header */}
                 <div className="p-3.5 flex items-center gap-2.5 border-b" style={{ borderColor: "rgba(255,255,255,0.1)" }}>
                   <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white"
                     style={{ backgroundColor: widgetConfig.accent }}>
                     {widgetConfig.companyName[0]}
                   </div>
                   <div className="flex-1">
-                    <div className="text-sm font-semibold" style={{ color: widgetConfig.textColor }}>
-                      {widgetConfig.name}
-                    </div>
+                    <div className="text-sm font-semibold" style={{ color: widgetConfig.textColor }}>{widgetConfig.name}</div>
                     <div className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                       <span className="text-[10px]" style={{ color: widgetConfig.textColor + "88" }}>Online</span>
                     </div>
                   </div>
                 </div>
-
-                {/* Messages */}
                 <div className="h-72 overflow-y-auto p-3.5 space-y-2.5" style={{ backgroundColor: widgetConfig.bgColor }}>
                   {widgetMessages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -297,8 +316,6 @@ export default function DashboardLayout({
                   )}
                   <div ref={chatEndRef} />
                 </div>
-
-                {/* Input */}
                 <div className="p-3 flex gap-2" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
                   <input
                     value={widgetInput}
@@ -322,7 +339,6 @@ export default function DashboardLayout({
           </>
         )}
       </div>
-    </div>
     </ErrorBoundary>
   );
 }
