@@ -46,6 +46,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${plusJakartaSans.variable} h-full antialiased`}>
+      {/* Sync localStorage theme BEFORE any paint to prevent flash */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem("botforge-theme")||"dark";document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`
+        }}
+      />
       <body className="min-h-full bg-[var(--color-background)] text-[var(--color-foreground)] font-sans">
         <ThemeProvider>
           <Providers>{children}</Providers>
