@@ -17,6 +17,10 @@ import {
   Settings,
   ArrowRight,
   Sparkles,
+  Clock,
+  Star,
+  Timer,
+  RefreshCw,
 } from "lucide-react";
 import ManageCompanyModal from "./ManageCompanyModal";
 
@@ -26,6 +30,11 @@ interface Analytics {
   messages: number;
   tokens: { total: number; daily: Array<{ date: string; tokens: number }> };
   knowledge: { entries: number; chunks: number };
+  waitingConversations: number;
+  agentResponseTime: { averageSeconds: number; formatted: string };
+  botResolution: { rate: number; resolvedByBot: number; totalClosed: number };
+  transferRate: { rate: number; transferred: number; total: number };
+  ratings: { average: number; count: number; distribution: Record<number, number> };
 }
 
 export default function DashboardPage() {
@@ -149,6 +158,19 @@ function CompanyAnalytics({ analytics, router, isSuperAdmin }: { analytics: Anal
   const maxDailyToken = Math.max(...a.tokens.daily.map((d) => d.tokens), 1);
   const tokenPercent = a.company.tokenLimit > 0 ? Math.round((a.company.tokensUsed / a.company.tokenLimit) * 100) : 0;
 
+  // Rating stars helper
+  const renderStars = (avg: number) => {
+    const full = Math.floor(avg);
+    const half = avg - full >= 0.5;
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (i <= full) stars.push('★');
+      else if (half && i === full + 1) stars.push('★');
+      else stars.push('☆');
+    }
+    return stars.join('');
+  };
+
   return (
     <div className="space-y-6">
       {/* Stat cards */}
@@ -156,7 +178,88 @@ function CompanyAnalytics({ analytics, router, isSuperAdmin }: { analytics: Anal
         <StatCard icon={MessageSquare} label="Total Conversations" value={a.conversations.total} />
         <StatCard icon={Activity} label="Active Now" value={a.conversations.active} />
         <StatCard icon={Users} label="Handoff Active" value={a.conversations.handoff} />
-        <StatCard icon={Bot} label="Messages Sent" value={a.messages} trend="+12%" />
+        <StatCard icon={Bot} label="Messages Sent" value={a.messages} />
+      </div>
+
+      {/* New Performance Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {/* 1. Waiting Conversations */}
+        <div className="group relative p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-amber-500/30 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Clock className="w-4.5 h-4.5 text-amber-400" />
+            </div>
+          </div>
+          <div className="text-xl font-bold">{a.waitingConversations}</div>
+          <div className="text-[11px] text-[var(--color-muted-foreground)] mt-0.5">Waiting Conversations</div>
+          {a.waitingConversations > 0 && (
+            <div className="mt-2 flex items-center gap-1 text-[10px] text-amber-400">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Need attention
+            </div>
+          )}
+        </div>
+
+        {/* 2. Agent Response Time */}
+        <div className="group relative p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-primary)]/30 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Timer className="w-4.5 h-4.5 text-blue-400" />
+            </div>
+          </div>
+          <div className="text-xl font-bold">{a.agentResponseTime.formatted}</div>
+          <div className="text-[11px] text-[var(--color-muted-foreground)] mt-0.5">Agent Response Time</div>
+        </div>
+
+        {/* 3. Bot Resolution Rate */}
+        <div className="group relative p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-green-500/30 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Bot className="w-4.5 h-4.5 text-green-400" />
+            </div>
+          </div>
+          <div className="text-xl font-bold">{a.botResolution.rate}%</div>
+          <div className="text-[11px] text-[var(--color-muted-foreground)] mt-0.5">Bot Resolution Rate</div>
+          <div className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">
+            {a.botResolution.resolvedByBot} / {a.botResolution.totalClosed} closed by bot
+          </div>
+        </div>
+
+        {/* 4. Transfer Rate */}
+        <div className="group relative p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-purple-500/30 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <RefreshCw className="w-4.5 h-4.5 text-purple-400" />
+            </div>
+          </div>
+          <div className="text-xl font-bold">{a.transferRate.rate}%</div>
+          <div className="text-[11px] text-[var(--color-muted-foreground)] mt-0.5">Transferred to Agent</div>
+          <div className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">
+            {a.transferRate.transferred} / {a.transferRate.total} conversations
+          </div>
+        </div>
+
+        {/* 5. Customer Satisfaction */}
+        <div className="group relative p-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] hover:border-yellow-500/30 transition-all">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-9 h-9 rounded-lg bg-yellow-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Star className="w-4.5 h-4.5 text-yellow-400" />
+            </div>
+          </div>
+          <div className="text-xl font-bold">
+            {a.ratings.count > 0 ? (
+              <span className="text-yellow-400">{a.ratings.average}</span>
+            ) : (
+              <span className="text-[var(--color-muted-foreground)]">N/A</span>
+            )}
+          </div>
+          <div className="text-[11px] text-[var(--color-muted-foreground)] mt-0.5">Customer Rating</div>
+          <div className="text-[9px] text-[var(--color-muted-foreground)] mt-0.5">
+            {a.ratings.count > 0
+              ? `${a.ratings.count} review${a.ratings.count > 1 ? 's' : ''} — ${renderStars(a.ratings.average)}`
+              : 'No ratings yet'}
+          </div>
+        </div>
       </div>
 
       {/* Token usage + mini stats */}

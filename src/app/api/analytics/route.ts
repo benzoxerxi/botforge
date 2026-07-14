@@ -29,6 +29,110 @@ export async function GET(request: Request) {
   // 30-day window for recent stats
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
+  // ====== ✔️ 1. Waiting conversations (handoff requested, no agent yet) =====
+  const waitingConversations = await prisma.conversation.count({
+    where: {
+      companyId,
+      status: "handoff_requested",
+    },
+  });
+
+  // ====== ✔️ 2. Agent Response Time (avg seconds from last user msg to first agent reply) =====
+  let avgResponseTimeSeconds = 0;
+  try {
+    const result: any = await prisma.$queryRawUnsafe(`
+      SELECT COALESCE(AVG(EXTRACT(EPOCH FROM (first_agent."createdAt" - prev_user."createdAt"))), 0) as avg_seconds
+      FROM (
+        SELECT DISTINCT ON (m."conversationId")
+          m."conversationId",
+          m."createdAt"
+        FROM "Message" m
+        JOIN "Conversation" c ON c.id = m."conversationId"
+        WHERE m.role = 'agent'
+          AND c."companyId" = $1
+          AND c."createdAt" >= $2
+        ORDER BY m."conversationId", m."createdAt" ASC
+      ) first_agent
+      JOIN LATERAL (
+        SELECT m2."createdAt"
+        FROM "Message" m2
+        WHERE m2."conversationId" = first_agent."conversationId"
+          AND m2.role = 'user'
+          AND m2."createdAt" < first_agent."createdAt"
+        ORDER BY m2."createdAt" DESC
+        LIMIT 1
+      ) prev_user ON true
+    `, companyId, thirtyDaysAgo);
+    avgResponseTimeSeconds = Math.round(Number(result?.[0]?.avg_seconds) || 0);
+  } catch (e) {
+    console.error("Agent response time query failed:", e);
+  }
+
+  // ====== ✔️ 3-4. Bot Resolution + Transfer Rate =====
+  const totalClosedConversations = await prisma.conversation.count({
+    where: { companyId, status: "closed" },
+  });
+
+  // Conversations that ever had agent messages (transferred to human)
+  const transferredMsgs = await prisma.message.findMany({
+    where: {
+      role: "agent",
+      conversation: { companyId },
+    },
+    select: { conversationId: true },
+    distinct: ["conversationId"],
+  });
+  const uniqueTransferredConvs = transferredMsgs.length;
+
+  // Count closed conversations that have NO agent messages (bot-resolved)
+  let botResolvedConversations = 0;
+  try {
+    const botRes: any = await prisma.$queryRawUnsafe(`
+      SELECT COUNT(*)::int as cnt FROM "Conversation" c
+      WHERE c."companyId" = $1
+        AND c.status = 'closed'
+        AND NOT EXISTS (
+          SELECT 1 FROM "Message" m
+          WHERE m."conversationId" = c.id AND m.role = 'agent'
+        )
+    `, companyId);
+    botResolvedConversations = Number(botRes?.[0]?.cnt) || 0;
+  } catch (e) {
+    console.error("Bot resolution query failed:", e);
+  }
+
+  const totalConvs = await prisma.conversation.count({
+    where: { companyId },
+  });
+
+  const botResolutionRate = totalClosedConversations > 0
+    ? Math.round((botResolvedConversations / totalClosedConversations) * 100)
+    : 0;
+
+  const transferRate = totalConvs > 0
+    ? Math.round((uniqueTransferredConvs / totalConvs) * 100)
+    : 0;
+
+  // ====== ✔️ 5. Ratings / Customer Satisfaction =====
+  const ratings = await prisma.rating.findMany({
+    where: { companyId },
+    select: { rating: true },
+  });
+
+  const ratingCount = ratings.length;
+  const averageRating = ratingCount > 0
+    ? Math.round((ratings.reduce((s, r) => s + r.rating, 0) / ratingCount) * 10) / 10
+    : 0;
+
+  // Rating distribution (1-5 stars)
+  const ratingDistribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  ratings.forEach((r) => {
+    if (r.rating >= 1 && r.rating <= 5) {
+      ratingDistribution[r.rating] = (ratingDistribution[r.rating] || 0) + 1;
+    }
+  });
+
+  // ====== Existing stat queries =====
   // Get conversation stats (last 30 days)
   const totalConversations = await prisma.conversation.count({
     where: { companyId, createdAt: { gte: thirtyDaysAgo } },
@@ -122,6 +226,31 @@ export async function GET(request: Request) {
     knowledge: {
       entries: kbCount,
       chunks: totalChunks._sum.chunkCount || 0,
+    },
+    // New analytics
+    waitingConversations,
+    agentResponseTime: {
+      averageSeconds: avgResponseTimeSeconds,
+      formatted: avgResponseTimeSeconds > 0
+        ? avgResponseTimeSeconds >= 60
+          ? `${Math.floor(avgResponseTimeSeconds / 60)}m ${avgResponseTimeSeconds % 60}s`
+          : `${avgResponseTimeSeconds}s`
+        : "N/A",
+    },
+    botResolution: {
+      rate: botResolutionRate,
+      resolvedByBot: botResolvedConversations,
+      totalClosed: totalClosedConversations,
+    },
+    transferRate: {
+      rate: transferRate,
+      transferred: uniqueTransferredConvs,
+      total: totalConvs,
+    },
+    ratings: {
+      average: averageRating,
+      count: ratingCount,
+      distribution: ratingDistribution,
     },
   });
 }
